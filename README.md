@@ -20,7 +20,10 @@ Asumiendo que la instalación inicial se realizó con conexión ethernet, a cont
   ```
   sudo pacman -S networkmanager
   ```
-  ```paru -S networkmanager```
+  
+  ```
+  paru -S networkmanager
+  ```
 - Luego se debe start y enable el servicio
   ```
   systemctl enable NetworkManager.service
