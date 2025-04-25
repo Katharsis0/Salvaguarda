@@ -1,5 +1,5 @@
 # Salvaguarda
-Instrucciones del Sebas del pasado para el Sebas del futuro en caso de que requiera de reinstalar Arch y establecer la configuración customizada.
+Instrucciones del Sebas del pasado para el Sebas del futuro en caso de que requiera de reinstalar Arch y reestablecer la configuración customizada.
 
 -Nota: Priorizar el backupeo de los archivos del sistema en un disco externo para redundar la informacion en caso de situaciones críticas
 
