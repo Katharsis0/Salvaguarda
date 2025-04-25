@@ -31,8 +31,42 @@ Asumiendo que la instalación inicial se realizó con conexión ethernet, a cont
   ```
   systemctl start NetworkManager.service
   ```
-- 
+- Una vez inicializado el servicio, procedemos a acceder al       wifi con
+  ```
+  nmtui
+  ```
+Para conectarse a una red WPA2-Enterprise como wTEC:
+```
+nmcli con add type wifi ifname wlan0 con-name wTEC ssid wTEC
+```
+```
+nmcli con edit id wTEC
+```
 
+```
+set ipv4.method auto
+```
+```
+set 802-1x.eap peap
+```
+```
+set 802-1x.phase2-auth mschapv2
+```
+```
+set 802-1x.identity hvsebas@estudiantes.tec.cr
+```
+```
+set 802-1x.password PASSWORD
+```
+```
+set wifi-sec.key-mgmt wpa-eap
+```
+```
+save
+```
+```
+activate
+```
 
 # i3
 
