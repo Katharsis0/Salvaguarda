@@ -70,9 +70,9 @@ activate
 
 
 # Timezone
-¨¨¨
+```
 timedatectl set-timezone America/Costa_Rica
-¨¨¨
+```
 
 # Keyboard lang=latam
 ```
