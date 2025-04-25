@@ -17,4 +17,9 @@ Lo cual corre el script de instalacion. Ahi se puede seleccionar todo lo importa
 
 # Clipboard
 
+# Keyboard lang=latam
+```
+setxkbmap -layout latam
+```
+
 # Scroll direction - Mousetrack
