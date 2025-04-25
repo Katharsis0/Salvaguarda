@@ -1,17 +1,35 @@
 # Salvaguarda
-Instrucciones del Sebas del pasado para el Sebas del futuro en caso de que requiera de reinstalar Arch y establecer la configuracion customizada.
+Instrucciones del Sebas del pasado para el Sebas del futuro en caso de que requiera de reinstalar Arch y establecer la configuración customizada.
 
--Nota: Priorizar el backupeo de los archivos del sistema en un disco externo para redundar la informacion en caso de situaciones criticas
+-Nota: Priorizar el backupeo de los archivos del sistema en un disco externo para redundar la informacion en caso de situaciones críticas
 
 # Arch
-Para instalar se debe flashear un usbdrive con la imagen. Una vez flasheada, se conecta a la compu y se bootea.
+Para instalar se debe flashear un USB drive con la imagen. Una vez flasheada, se conecta a la compu y se bootea.
 
 Una vez instalado el kernel, es posible correr el comando:
 
 ```
 archinstall
 ```
-Lo cual corre el script de instalacion. Ahi se puede seleccionar todo lo importante. 
+Lo cual corre el script de instalación. Ahi se puede seleccionar todo lo importante según sea necesario. 
+
+# NetworkManager, Wifi y conexión a WPA2-Enterprise
+Asumiendo que la instalación inicial se realizó con conexión ethernet, a continuación se describe lo necesario para poder conectarse al WiFi.
+
+- Se debe instalar NetworkManager
+  ```
+  sudo pacman -S networkmanager
+  ```
+  ```paru -S networkmanager```
+- Luego se debe start y enable el servicio
+  ```
+  systemctl enable NetworkManager.service
+  ```
+  ```
+  systemctl start NetworkManager.service
+  ```
+- 
+
 
 # i3
 
