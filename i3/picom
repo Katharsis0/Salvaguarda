@@ -1,0 +1,12 @@
+# Configuración básica para la transparencia de ventanas no enfocadas
+opacity-rule = [
+    "90:class_g = 'Alacritty'",
+    "80:class_g = 'Firefox'",
+    "70:class_g = 'SomeOtherWindowClass'"
+];
+
+# Configura la opacidad de las ventanas no enfocadas (por defecto 80%)
+inactive-opacity = 0.8;
+
+# Configura la opacidad de las ventanas enfocadas (por defecto 100%)
+active-opacity = 1.0;

@@ -1,0 +1,62 @@
+
+[window]
+dimensions.columns = 160
+dimensions.lines = 80
+padding.x = 4
+padding.y = 4
+decorations = "full"
+startup_mode = "Maximized"
+dynamic_title = false
+option_as_alt = "Both"
+title = "Terminal"
+
+[font]
+size = 12
+normal.family = "JetBrainsMono Nerd Font"
+normal.style = "Regular"
+bold.family = "JetBrainsMono Nerd Font"
+bold.style = "Bold"
+italic.family = "JetBrainsMono Nerd Font"
+
+#[colors]
+#primary.background = "0x1E1D2F"
+#primary.foreground = "0xD9E0EE"
+#cursor.text = "0x1E1D2F"
+#cursor.cursor = "0xF5E0DC"
+#normal.black = "0x6E6C7E"
+#normal.red = "0xF28FAD"
+# other colors...
+
+[mouse]
+hide_when_typing = true
+[[mouse.bindings]]
+mouse = "Middle"
+action = "PasteSelection"
+
+#[keyboard]
+#bindings = [
+#   { key = "Return", mods = "Control|Shift", action = "SpawnNewInstance" }
+#]
+
+[terminal.shell]
+program = "/bin/bash"
+
+[[hints.enabled]]
+regex = "[^ ]+\\.rs:\\d+:\\d+"
+command = { program = "nvim", args = [ "--goto" ] }
+mouse = { enabled = true }
+
+[env]
+TERM = "xterm-256color"
+
+[general]
+# Alacritty configuration in TOML format
+
+import = [
+  #"~/.config/alacritty/catppuccin-latte.toml"
+  # "~/.config/alacritty/catppuccin-frappe.toml"
+  # "~/.config/alacritty/catppuccin-macchiato.toml"
+   "~/.config/alacritty/catppuccin-mocha.toml"
+]
+
+[terminal]

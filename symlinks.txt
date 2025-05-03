@@ -1,0 +1,14 @@
+# Symlinks
+
+```
+ln -s ~/GitHub/dotfiles/i3/ ~/.config/i3
+ln -s ~/GitHub/dotfiles/alacritty/ ~/.config/alacritty
+ln -s ~/GitHub/dotfiles/dunst/ ~/.config/dunst
+ln -s ~/GitHub/dotfiles/nvim/ ~/.config/nvim
+ln -s ~/GitHub/dotfiles/picom/ ~/.config/picom
+ln -s ~/GitHub/dotfiles/polybar/ ~/.config/polybar
+ln -s ~/GitHub/dotfiles/rofi/ ~/.config/rofi
+ln -s ~/GitHub/dotfiles/Scripts/ ~/.config/Scripts
+ln -s ~/GitHub/dotfiles/.bashrc/ ~/.bashrc
+```
+
