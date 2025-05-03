@@ -35,10 +35,17 @@ Asumiendo que la instalación inicial se realizó con conexión ethernet, a cont
   ```
   nmtui
   ```
+  
 Para conectarse a una red WPA2-Enterprise como wTEC:
 ```
 nmcli con add type wifi ifname wlan0 con-name wTEC ssid wTEC
-```
-```
 nmcli con edit id wTEC
+```
+
+
+# Config files
+
+En symlinks.txt es posible ver los links del backup al ~/.config/ y a ~/.bashrc
+
+
 
