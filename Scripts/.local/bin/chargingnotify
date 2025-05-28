@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Automatically detect if batteries are charging or discharging.
+# Send notification using dunst via notify-send.
+
+export XAUTHORITY=/home/katharsis/.Xauthority
+export DISPLAY=:0
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
+
+# Determine overall battery status
+if acpi -b | grep -q "Discharging"; then
+    STATE="Discharging"
+    ICON="battery"
+else
+    STATE="Charging"
+    ICON="battery-charging"
+fi
+
+# Calculate average battery percentage
+BATTERY_LEVEL=$(acpi -b | grep -o '[0-9]\+%' | sed 's/%//' | awk '{sum+=$1} END {print int(sum/NR)}')
+
+# Send notification
+notify-send "$STATE" "${BATTERY_LEVEL}% of battery ${STATE,,}." -u low -i "$ICON" -t 5000 -r 9991
+

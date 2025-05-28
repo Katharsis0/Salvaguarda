@@ -1,0 +1,32 @@
+
+#!/bin/bash
+
+export XAUTHORITY=/home/eric/.Xauthority
+export DISPLAY=:0
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
+
+WARNING_LEVEL=15
+
+# Get all battery info
+BATTERY_PERCENT_TOTAL=$(acpi -b | grep -o '[0-9]\+%' | sed 's/%//' | awk '{sum+=$1} END {print int(sum/NR)}')
+BATTERY_DISCHARGING=$(acpi -b | grep -c "Discharging")
+
+EMPTY_FILE=/tmp/batteryempty
+FULL_FILE=/tmp/batteryfull
+
+# Reset notification states
+if [ "$BATTERY_DISCHARGING" -eq 0 ] && [ -f $EMPTY_FILE ]; then
+  rm $EMPTY_FILE
+elif [ "$BATTERY_DISCHARGING" -gt 0 ] && [ -f $FULL_FILE ]; then
+  rm $FULL_FILE
+fi
+
+# If all batteries are charging and battery is full
+if [ "$BATTERY_DISCHARGING" -eq 0 ] && [ "$BATTERY_PERCENT_TOTAL" -ge 96 ] && [ ! -f $FULL_FILE ]; then
+  notify-send "Battery Charged" "Battery is fully charged." -i "battery" -r 9991
+  touch $FULL_FILE
+# If any battery is discharging and total is low
+elif [ "$BATTERY_DISCHARGING" -gt 0 ] && [ "$BATTERY_PERCENT_TOTAL" -le $WARNING_LEVEL ] && [ ! -f $EMPTY_FILE ]; then
+  notify-send "Low Battery" "${BATTERY_PERCENT_TOTAL}% of battery remaining." -u critical -i "battery-alert" -r 9991
+  touch $EMPTY_FILE
+fi

@@ -1,0 +1,12 @@
+# ~/.config/git/config
+
+[user]
+  name = Katharsis0
+  email = hvsebas@estudiantec.cr 
+
+[core]
+  compression = 9
+
+
+
+
