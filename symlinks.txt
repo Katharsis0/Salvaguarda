@@ -10,5 +10,8 @@ ln -s ~/GitHub/dotfiles/polybar/ ~/.config/polybar
 ln -s ~/GitHub/dotfiles/rofi/ ~/.config/rofi
 ln -s ~/GitHub/dotfiles/Scripts/ ~/.config/Scripts
 ln -s ~/GitHub/dotfiles/.bashrc ~/.bashrc
+ln -s ~/GitHub/dotfiles/Scripts/chargingnotify ~/.local/bin/
+ln -s ~/GitHub/dotfiles/Scripts/batterystatus ~/.local/bin/
+ln -s ~/GitHub/dotfiles/git/.gitconfig ~/
 ```
 
