@@ -38,7 +38,7 @@ alias grep='grep --color=auto'
 alias latam='setxkbmap -layout latam'
 alias lst='eza -L=2 -T --icons=auto --no-quotes --group-directories-first'
 alias lsa='eza -A --icons=auto --no-quotes --group-directories-first'
-alias dotfiles='cd ~/GitHub/dotfiles'
+alias config='cd ~/GitHub/dotfiles'
 alias home='cd ~'
 alias ..='cd ..'
 alias ...='cd ./..'
@@ -46,12 +46,12 @@ alias pacman='sudo pacman'
 alias mkdir='mkdir -pv'
 alias fer='ferdium'
 alias wifi='nmtui'
-alias config='cd ~/.config'
 alias bashrc='vim ~/.bashrc'
 alias hdmi='xrandr --output eDP-1 --mode 1366x768 --pos 199x1080 --rotate normal --output DP-1 --off --output HDMI-1 --off --output DP-2 --off --output HDMI-2 --mode 1920x1080 --pos 0x0 --rotate normal'
-
+alias downloads='cd ~/Downloads/'
 alias tec='cd ~/Documents/TEC/'
-
+alias gc='git commit -m'
+alias gp='git push'
 pdf() {
   nohup okular "$(realpath "$1")"
   exit

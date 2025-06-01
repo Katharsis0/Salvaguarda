@@ -16,7 +16,7 @@ exec_always --no-startup-id killall polybar
 exec_always --no-startup-id ~/.config/polybar/launch.sh
 exec_always --no-startup-id xset -b
 #Wallpaper
-exec_always feh --bg-scale ~/.config/background_pictures/death_bg.png
+exec_always feh --bg-scale ~/GitHub/dotfiles/desktop_bgs/death_bg.png
 
 #HDMI display (monitor casa)
 exec --no-startup-id xrandr --output eDP-1 --primary --mode 1366x768 --pos 425x1080 --rotate normal --output DP1 --off --output DP2 --off --output HDMI1 --off --output HDMI2 --mode 1920x1080 --pos 0x0 --rotate normal --output VIRTUAL1 --off
@@ -178,10 +178,10 @@ set $ws10 "10 "
 # Assign Workspaces:
 assign [class="firefox"] $ws1
 assign [class="Alacritty"] $ws2
-assign [class="^(jetbrains-clion|jetbrains-studio|code-oss)$"] $ws3
+assign [class="^(jetbrains-clion|jetbrains-studio|code-oss|jetbrains-rider)$"] $ws3
 assign [class="thunderbird"] $ws4
 assign [class="org.gnome.Nautilus"] $ws5
-assign [class="discord-screenaudio"] $ws6
+assign [class="^(discord-screenaudio|discord)$"] $ws6
 assign [class="Ferdium"] $ws9
 assign [class="Spotify"] $ws10
 
