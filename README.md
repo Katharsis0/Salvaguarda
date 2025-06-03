@@ -56,8 +56,6 @@ set 802-1x.phase2-auth mschapv2
 set 802-1x.identity hvsebas@estudiantes.tec.cr
 ```
 ```
-```
-```
 set 802-1x.password PASSWORD
 ```
 ```
