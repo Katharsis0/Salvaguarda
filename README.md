@@ -59,9 +59,6 @@ set 802-1x.identity hvsebas@estudiantes.tec.cr
 set 802-1x.password PASSWORD
 ```
 ```
-set 802-1x.password PASSWORD
-```
-```
 set wifi-sec.key-mgmt wpa-eap
 ```
 ```
