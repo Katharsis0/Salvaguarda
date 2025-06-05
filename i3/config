@@ -188,7 +188,7 @@ assign [class="Alacritty"] $ws2
 assign [class="^(jetbrains-clion|jetbrains-studio|code-oss|jetbrains-rider)$"] $ws3
 assign [class="thunderbird"] $ws4
 assign [class="org.gnome.Nautilus"] $ws5
-assign [class="^(discord-screenaudio|discord)$"] $ws6
+assign [class="^(discord-screenaudio|discord|zoom)$"] $ws6
 assign [class="Ferdium"] $ws9
 assign [class="Spotify"] $ws10
 
