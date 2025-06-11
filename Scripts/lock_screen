@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Get primary monitor resolution
+RES=$(xrandr | grep primary | awk '{print $4}' | sed 's/+.*//')
+
+# Fallback if 'primary' is not marked
+if [ -z "$RES" ]; then
+  RES=$(xrandr | grep ' connected' | awk '{print $3}' | head -n 1 | sed 's/+.*//')
+fi
+
+JPEG_IMAGE="$HOME/GitHub/dotfiles/desktop_bgs/bye.jpg"
+
+# Directory for cached PNG version
+CACHE_DIR="$HOME/.cache/i3lock"
+PNG_IMAGE="$CACHE_DIR/lock.png"
+
+mkdir -p "$CACHE_DIR"
+
+# Convert JPEG → PNG because i3lock kinda sucks
+magick "$JPEG_IMAGE" -resize "$RES" "$PNG_IMAGE"
+
+# Lock with the PNG version
+i3lock -i "$PNG_IMAGE" -n

@@ -189,7 +189,7 @@ assign [class="^(jetbrains-clion|jetbrains-studio|code-oss|jetbrains-rider)$"] $
 assign [class="thunderbird"] $ws4
 assign [class="org.gnome.Nautilus"] $ws5
 assign [class="^(discord-screenaudio|discord|zoom)$"] $ws6
-assign [class="Ferdium"] $ws9
+assign [class="^(Ferdium|Telegram)$"] $ws9
 assign [class="Spotify"] $ws10
 
 

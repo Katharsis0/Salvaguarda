@@ -29,9 +29,9 @@ export CHROOT=$HOME/chroot
 
 alias c="clear"
 alias off="shutdown now"
-alias mimir="/usr/local/bin/lockscreen"
+alias mimir="~/GitHub/dotfiles/Scripts/lock_screen"
 alias vim="nvim"
-alias ls='eza -L=1 -T --icons=auto --no-quotes --group-directories-first'
+alias ls='eza -L=0 -T --icons=auto --no-quotes --group-directories-first'
 alias blue='bluetoothctl'
 alias k='bluetoothctl connect DC:2C:26:34:5F:88'
 alias grep='grep --color=auto'
@@ -51,7 +51,7 @@ alias bashrc='vim ~/.bashrc'
 alias hdmi='xrandr --output eDP-1 --mode 1366x768 --pos 199x1080 --rotate normal --output DP-1 --off --output HDMI-1 --off --output DP-2 --off --output HDMI-2 --mode 1920x1080 --pos 0x0 --rotate normal'
 alias downloads='cd ~/Downloads/'
 alias tec='cd ~/Documents/TEC/1S2025/'
-
+alias feh='feh -F'
 alias gc='git commit -m'
 alias gp='git push'
 pdf() {
