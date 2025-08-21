@@ -16,7 +16,7 @@ MAGENTA='\[\033[38;2;209;182;254m\]'
 PURPLE='\[\033[38;2;161;107;253m\]'
 # COLOR_RESET='\[\033[0m\]'
 
-PATH=$PATH:/home/katharsis/.local/bin/
+PATH=$PATH:/home/katharsis/.local/bin/:/home/katharsis/.cargo/bin
 
 unset PROMPT_COMMAND
 
@@ -43,9 +43,8 @@ alias config='cd ~/GitHub/dotfiles'
 alias home='cd ~'
 alias ..='cd ..'
 alias ...='cd ./..'
-alias pacman='sudo pacman'
 alias mkdir='mkdir -pv'
-alias fer='ferdium'
+alias repos='cd ~/GitHub/'
 alias wifi='nmtui'
 alias bashrc='vim ~/.bashrc'
 alias hdmi='xrandr --output eDP-1 --mode 1366x768 --pos 199x1080 --rotate normal --output DP-1 --off --output HDMI-1 --off --output DP-2 --off --output HDMI-2 --mode 1920x1080 --pos 0x0 --rotate normal'
