@@ -31,7 +31,7 @@ alias c="clear"
 alias off="shutdown now"
 alias mimir="~/GitHub/dotfiles/Scripts/lock_screen"
 alias vim="nvim"
-alias ls='eza -L=0 -T --icons=auto --no-quotes --group-directories-first'
+alias ls='eza -L=0 --icons=auto --no-quotes --group-directories-first'
 alias blue='bluetoothctl'
 alias k='bluetoothctl connect DC:2C:26:34:5F:88'
 alias grep='grep --color=auto'
@@ -53,6 +53,8 @@ alias tec='cd ~/Documents/TEC/1S2025/'
 alias feh='feh -F'
 alias gc='git commit -m'
 alias gp='git push'
+alias wow='proton-ge ~/TurtleWoW/turtlewow/twmoa_1172/WoW.exe'
+alias proton='proton-ge'
 pdf() {
   nohup okular "$(realpath "$1")"
   exit

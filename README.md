@@ -110,5 +110,16 @@ Section "InputClass"
 EndSection
 ```
 
+# Clipboard manager (CopyQ)
+Historial de portapapeles al estilo Win+V / XFCE clipman, con soporte para texto e imágenes. Se abre con `Super+V`.
+
+```
+sudo pacman -S copyq
+```
+Simlinkear `copyq/` (ver `symlinks.txt`) y correr una vez:
+```
+~/.config/copyq/setup.sh
+```
+
 
 
