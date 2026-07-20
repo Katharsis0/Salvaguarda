@@ -1,0 +1,12 @@
+# CopyQ runtime state (clipboard history, locks, window geometry) - not config
+copyq/*.dat
+copyq/*.lock
+copyq/copyq_geometry.ini
+copyq/.copyq_s
+
+# Editor/tool backup and swap files
+*.bak
+*~
+*.swp
+*.orig
+.DS_Store

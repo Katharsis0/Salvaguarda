@@ -14,14 +14,14 @@ MAGENTA='\[\033[38;2;209;182;254m\]'
 # CYAN='\[\033[0;36m\]'
 # WHITE='\[\033[0;37m\]'
 PURPLE='\[\033[38;2;161;107;253m\]'
-# COLOR_RESET='\[\033[0m\]'
+COLOR_RESET='\[\033[0m\]'
 
 PATH=$PATH:/home/katharsis/.local/bin/:/home/katharsis/.cargo/bin
 
 unset PROMPT_COMMAND
 
 # Set the prompt with color
-PS1="${PURPLE}(✿◠‿◠) \W ${MAGENTA}\$(.git-prompt-zkwinkle)${PURPLE}⌘ ${MAGENTA} "
+PS1="${PURPLE}(✿◠‿◠) \W ${MAGENTA}\$(.git-prompt-zkwinkle)${PURPLE}⌘ ${COLOR_RESET}"
 
 export EDITOR=nvim
 export LANG=en_US.UTF-8

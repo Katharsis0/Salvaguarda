@@ -11,12 +11,9 @@
 
 set $mod Mod4
 
-#Polybar 
-exec_always --no-startup-id killall polybar
-exec_always --no-startup-id ~/.config/polybar/launch.sh
+#Polybar + Wallpaper (theme-aware, see Scripts/theme.sh)
+exec_always --no-startup-id ~/.config/Scripts/theme.sh apply
 exec_always --no-startup-id xset -b
-#Wallpaper
-exec_always feh --bg-scale ~/GitHub/dotfiles/desktop_bgs/death_bg.png
 
 #HDMI display (monitor casa)
 exec --no-startup-id xrandr --output eDP-1 --primary --mode 1366x768 --pos 425x1080 --rotate normal --output DP1 --off --output DP2 --off --output HDMI1 --off --output HDMI2 --mode 1920x1080 --pos 0x0 --rotate normal --output VIRTUAL1 --off
@@ -43,9 +40,11 @@ bindsym $mod+v exec --no-startup-id ~/.config/copyq/toggle.sh
 ## Fuzzy Search
 #bindsym $mod+t exec --no-startup-id alacritty --class FZF -e bash -c $launch_fzf
 
+## Toggle dark/light theme (polybar colors + wallpaper)
+bindsym $mod+t exec --no-startup-id ~/.config/Scripts/theme.sh toggle
 
-# Toggle between Latin American and US layouts
-#bindsym $mod+p exec --no-startup-id "setxkbmap -layout latam,us -option 'grp:alt_shift_toggle'"
+## Toggle between Latin American and US keyboard layouts
+bindsym $mod+p exec --no-startup-id ~/.config/Scripts/toggle_layout.sh
 
 
 # Make the resulting terminal window float
@@ -196,7 +195,7 @@ assign [class="^(jetbrains-clion|jetbrains-studio|code|Code|jetbrains-rider)$"] 
 assign [class="thunderbird"] $ws4
 assign [class="org.gnome.Nautilus"] $ws5
 assign [class="^(discord-screenaudio|discord|zoom)$"] $ws6
-assign [class="World of Warcraft"] $ws7
+assign [class="Minecraft"] $ws7
 assign [class="^(Ferdium|Telegram|TelegramDesktop)$"] $ws9
 assign [class="Spotify"] $ws10
 
