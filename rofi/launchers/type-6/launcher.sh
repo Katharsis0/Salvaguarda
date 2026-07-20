@@ -11,7 +11,14 @@
 ## style-6     style-7     style-8     style-9     style-10
 
 dir="$HOME/.config/rofi/launchers/type-6"
-theme='style-7'
+
+## style-7 = dark (default), style-6 = light. Follows Scripts/theme.sh's mode.
+mode=$(cat "$HOME/.cache/theme_mode" 2>/dev/null)
+if [ "$mode" = "light" ]; then
+    theme='style-6'
+else
+    theme='style-7'
+fi
 
 ## Run
 rofi \
