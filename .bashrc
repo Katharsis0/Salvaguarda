@@ -27,17 +27,27 @@ export EDITOR=nvim
 export LANG=en_US.UTF-8
 export CHROOT=$HOME/chroot
 
+# Git alias
+
+alias gc="git commit -m"
+alias gbr="git branch"
+alias gco="git checkout"
+alias glog="git log"
+# git
+alias gsts='git status'
+
+alias .="pwd"
 alias c="clear"
 alias off="shutdown now"
 alias mimir="~/GitHub/dotfiles/Scripts/lock_screen"
 alias vim="nvim"
 alias ls='eza -L=0 --icons=auto --no-quotes --group-directories-first'
 alias blue='bluetoothctl'
-alias k='bluetoothctl connect DC:2C:26:34:5F:88'
 alias grep='grep --color=auto'
 alias latam='setxkbmap -layout latam'
 alias us='setxkbmap -layout us'
 alias lst='eza -L=2 -T --icons=auto --no-quotes --group-directories-first'
+alias -- -='cd -'
 alias lsa='eza -A --icons=auto --no-quotes --group-directories-first'
 alias config='cd ~/GitHub/dotfiles'
 alias home='cd ~'
@@ -45,15 +55,14 @@ alias ..='cd ..'
 alias ...='cd ./..'
 alias mkdir='mkdir -pv'
 alias repos='cd ~/GitHub/'
-alias wifi='nmtui'
 alias bashrc='vim ~/.bashrc'
-alias hdmi='xrandr --output eDP-1 --mode 1366x768 --pos 199x1080 --rotate normal --output DP-1 --off --output HDMI-1 --off --output DP-2 --off --output HDMI-2 --mode 1920x1080 --pos 0x0 --rotate normal'
+alias srcsh='source ~/.bashrc'
+alias hdmi='~/.config/Scripts/display.sh hdmi'
+alias dock='~/.config/Scripts/display.sh dock'
+alias solo='~/.config/Scripts/display.sh laptop'
+alias screens='~/.config/Scripts/display.sh auto'
 alias downloads='cd ~/Downloads/'
-alias tec='cd ~/Documents/TEC/1S2025/'
 alias feh='feh -F'
-alias gc='git commit -m'
-alias gp='git push'
-alias wow='proton-ge ~/TurtleWoW/turtlewow/twmoa_1172/WoW.exe'
 alias proton='proton-ge'
 pdf() {
   nohup okular "$(realpath "$1")"
@@ -61,7 +70,7 @@ pdf() {
 }
 
 # Path to git script
-. ~/.local/bin/.git-prompt-zkwinkle
+~/.local/bin/.git-prompt-zkwinkle
 
 # models: thinkpad layout: latam
 

@@ -1,20 +1,18 @@
 #!/usr/bin/env sh
 
-pkill polybar
+pkill -x polybar
 
-# Check if xrandr is available and use it to find connected monitors
+# Wait until the old instances are gone
+while pgrep -x polybar >/dev/null; do sleep 0.2; done
+
 if type "xrandr" >/dev/null 2>&1; then
   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-    if [ "$m" = "eDP-1" ]; then
-      MONITOR=$m polybar --reload main &
-    elif [ "$m" = "HDMI-2" ]; then
-      MONITOR=$m polybar --reload secondary &
-    else
-      # Default fallback
-      MONITOR=$m polybar --reload main &
-    fi
+    case "$m" in
+      eDP-1) BAR=main ;;
+      *)     BAR=secondary ;;
+    esac
+    MONITOR=$m polybar --reload "$BAR" >/dev/null 2>&1 &
   done
 else
-  # Fallback for when xrandr is not available
-  polybar --reload secondary &
+  polybar --reload main >/dev/null 2>&1 &
 fi
