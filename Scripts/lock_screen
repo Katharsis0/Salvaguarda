@@ -1,23 +1,70 @@
 #!/bin/bash
+# Theme-aware lock screen (i3lock-color).
+# Follows ~/.cache/theme_mode (set by theme.sh) and reuses the polybar palette
+# + the current wallpaper, blurred. The blurred image is cached per mode and
+# only regenerated when the wallpaper or resolution changes.
+#
+# Fingerprint: with pam_fprintd in /etc/pam.d/i3lock, press Enter on the empty
+# field, then touch the sensor. Typing your password still works.
 
-# Get primary monitor resolution
-RES=$(xrandr | grep primary | awk '{print $4}' | sed 's/+.*//')
+DOTFILES="$HOME/GitHub/dotfiles"
+MODE=$(cat "$HOME/.cache/theme_mode" 2>/dev/null)
+[ "$MODE" = "light" ] || MODE="dark"
 
-# Fallback if 'primary' is not marked
-if [ -z "$RES" ]; then
-  RES=$(xrandr | grep ' connected' | awk '{print $3}' | head -n 1 | sed 's/+.*//')
+if [ "$MODE" = "dark" ]; then
+    WALL="$DOTFILES/desktop_bgs/death_bg.png"
+    TINT="black";  TINT_PCT=40
+    BG=282A2Eee; FG=C5C8C6ff; PRIMARY=B57EDCff; SECONDARY=8ABEB7ff; ALERT=A54242ff
+else
+    WALL="$DOTFILES/desktop_bgs/light_bg.jpg"
+    TINT="white";  TINT_PCT=35
+    BG=EFF1F5ee; FG=4C4F69ff; PRIMARY=8839EFff; SECONDARY=179299ff; ALERT=D20F39ff
 fi
 
-JPEG_IMAGE="$HOME/GitHub/dotfiles/desktop_bgs/bye.jpg"
+# Resolution of the primary (or first connected) output
+RES=$(xrandr | awk '/ primary /{for(i=1;i<=NF;i++) if($i ~ /^[0-9]+x[0-9]+\+/){sub(/\+.*/,"",$i); print $i; exit}}')
+[ -z "$RES" ] && RES=$(xrandr | awk '/ connected/{for(i=1;i<=NF;i++) if($i ~ /^[0-9]+x[0-9]+\+/){sub(/\+.*/,"",$i); print $i; exit}}')
+[ -z "$RES" ] && RES=1920x1080
 
-# Directory for cached PNG version
 CACHE_DIR="$HOME/.cache/i3lock"
-PNG_IMAGE="$CACHE_DIR/lock.png"
-
+IMG="$CACHE_DIR/lock-$MODE-$RES.png"
 mkdir -p "$CACHE_DIR"
 
-# Convert JPEG → PNG because i3lock kinda sucks
-magick "$JPEG_IMAGE" -resize "$RES" "$PNG_IMAGE"
+if [ ! -f "$IMG" ] || [ "$WALL" -nt "$IMG" ]; then
+    magick "$WALL" -resize "${RES}^" -gravity center -extent "$RES" \
+        -blur 0x10 -fill "$TINT" -colorize "$TINT_PCT%" "$IMG" 2>/dev/null
+fi
 
-# Lock with the PNG version
-i3lock -i "$PNG_IMAGE" -n
+IMG_ARGS=(--color="${BG:0:6}")
+[ -f "$IMG" ] && IMG_ARGS=(-i "$IMG")
+
+FONT="JetBrainsMono Nerd Font"
+
+# Plain i3lock (not yet replaced by i3lock-color) doesn't know the styling flags
+if ! i3lock --version 2>&1 | grep -qi color; then
+    exec i3lock -n "${IMG_ARGS[@]}"
+fi
+
+# exec so xss-lock's --transfer-sleep-lock fd goes straight to i3lock
+exec i3lock -n "${IMG_ARGS[@]}" \
+    --indicator --radius=110 --ring-width=8 \
+    --inside-color=$BG       --ring-color=${PRIMARY:0:6}88 \
+    --insidever-color=$BG    --ringver-color=$SECONDARY \
+    --insidewrong-color=$BG  --ringwrong-color=$ALERT \
+    --line-uses-inside \
+    --keyhl-color=$PRIMARY   --bshl-color=$ALERT \
+    --separator-color=00000000 \
+    --clock --time-str="%H:%M" --date-str="%A, %d %B" \
+    --time-color=$FG --date-color=${FG:0:6}bb \
+    --time-font="$FONT" --date-font="$FONT" \
+    --time-size=48 --date-size=14 \
+    --time-pos="ix:iy-8" --date-pos="tx:ty+28" \
+    --verif-text="Verifying…" --wrong-text="Nope" --noinput-text="" \
+    --lock-text="" --lockfailed-text="Lock failed" \
+    --verif-color=$SECONDARY --wrong-color=$ALERT \
+    --verif-font="$FONT" --wrong-font="$FONT" \
+    --verif-size=18 --wrong-size=18 \
+    --greeter-text="Enter password · or press Enter + touch fingerprint" \
+    --greeter-color=${FG:0:6}cc --greeter-font="$FONT" --greeter-size=13 \
+    --greeter-pos="ix:iy+160" \
+    --pass-media-keys --pass-screen-keys --pass-volume-keys
