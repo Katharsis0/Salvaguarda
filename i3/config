@@ -14,6 +14,7 @@ set $mod Mod4
 #Polybar + Wallpaper (theme-aware, see Scripts/theme.sh)
 exec_always --no-startup-id ~/.config/Scripts/theme.sh apply
 exec_always --no-startup-id xset -b
+exec_always --no-startup-id ~/.config/Scripts/keyboard.sh
 
 #Displays (auto-detect layout: dock / hdmi / laptop) — see Scripts/display.sh
 exec --no-startup-id ~/.config/Scripts/display.sh auto

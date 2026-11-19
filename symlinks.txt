@@ -11,6 +11,7 @@ ln -s ~/GitHub/dotfiles/rofi/ ~/.config/rofi
 ln -s ~/GitHub/dotfiles/copyq/ ~/.config/copyq
 ln -s ~/GitHub/dotfiles/flameshot/ ~/.config/flameshot
 ln -s ~/GitHub/dotfiles/Scripts/ ~/.config/Scripts
+ln -s ~/GitHub/dotfiles/xkb/ ~/.config/xkb
 ln -s ~/GitHub/dotfiles/.bashrc ~/.bashrc
 ln -s ~/GitHub/dotfiles/Scripts/chargingnotify ~/.local/bin/
 ln -s ~/GitHub/dotfiles/Scripts/batterystatus ~/.local/bin/

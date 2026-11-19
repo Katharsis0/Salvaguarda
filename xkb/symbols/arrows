@@ -1,0 +1,8 @@
+// AltGr + H/J/K/L -> Left/Down/Up/Right (stand-ins for broken arrow keys)
+partial alphanumeric_keys
+xkb_symbols "altgr" {
+    key <AC06> { type[Group1] = "FOUR_LEVEL_SEMIALPHABETIC", [ h, H, Left,  Left  ] };
+    key <AC07> { type[Group1] = "FOUR_LEVEL_SEMIALPHABETIC", [ j, J, Down,  Down  ] };
+    key <AC08> { type[Group1] = "FOUR_LEVEL_SEMIALPHABETIC", [ k, K, Up,    Up    ] };
+    key <AC09> { type[Group1] = "FOUR_LEVEL_SEMIALPHABETIC", [ l, L, Right, Right ] };
+};

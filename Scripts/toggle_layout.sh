@@ -3,7 +3,7 @@
 current=$(setxkbmap -query | awk '/layout/{print $2}')
 
 if [ "$current" = "latam" ]; then
-    setxkbmap -layout us
+    ~/.config/Scripts/keyboard.sh us
 else
-    setxkbmap -layout latam
+    ~/.config/Scripts/keyboard.sh latam
 fi
