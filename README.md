@@ -194,7 +194,7 @@ Todo lo de abajo vive en este repo; `Super+F1` muestra la lista de atajos en viv
 | `Super+Shift+Q` | Cerrar ventana |
 | `Super+Shift+C` / `Super+Shift+R` | Recargar / reiniciar i3 |
 | `AltGr+H/J/K/L` | Flechas ← ↓ ↑ → (la flecha derecha física de la laptop está dañada) |
-| Teclas de volumen, brillo y micrófono | Con barrita en pantalla (`Scripts/osd.sh`); `Super`+volumen = pasos de 1%; el volumen no pasa de 100% |
+| Teclas de volumen, brillo y micrófono | Con barrita en pantalla (`Scripts/osd.sh`); `Super`+volumen = pasos de 1%; el volumen sube hasta 150% (por encima de 100% es amplificación por software; `MAX_VOLUME` en `osd.sh`) |
 
 Escritorios con programa asignado: 1 Firefox · 2 Alacritty · 3 IDEs (CLion, Android Studio, VS Code, Rider) · 4 Thunderbird · 5 Nautilus · 6 Discord/Zoom · 7 Minecraft · 9 Ferdium/Telegram · 10 Spotify.
 

@@ -6,6 +6,8 @@
 #   osd.sh mic mute
 #   osd.sh brightness up|down [step]   (default step 10)
 
+MAX_VOLUME=${MAX_VOLUME:-150}   # % ; 100 = no software boost
+
 show() {  # show TAG ICON TEXT [PERCENT]
     local args=(-a OSD -u low -t 1500 -h "string:x-dunst-stack-tag:$1" -i "$2")
     [ -n "${4:-}" ] && args+=(-h "int:value:$4")
@@ -18,8 +20,8 @@ case "$1" in
     volume)
         case "$2" in
             up)   pactl set-sink-mute @DEFAULT_SINK@ 0
-                  # cap at 100%: louder only distorts the laptop speakers
-                  v=$(vol); step=${3:-5}; (( v + step > 100 )) && step=$(( 100 - v ))
+                  # above 100% is software boost (can distort); MAX_VOLUME caps it
+                  v=$(vol); step=${3:-5}; (( v + step > MAX_VOLUME )) && step=$(( MAX_VOLUME - v ))
                   (( step > 0 )) && pactl set-sink-volume @DEFAULT_SINK@ "+${step}%" ;;
             down) pactl set-sink-volume @DEFAULT_SINK@ "-${3:-5}%" ;;
             mute) pactl set-sink-mute @DEFAULT_SINK@ toggle ;;
@@ -31,7 +33,7 @@ case "$1" in
             elif (( v < 34 )); then icon=audio-volume-low
             elif (( v < 67 )); then icon=audio-volume-medium
             else                    icon=audio-volume-high; fi
-            show volume "$icon" "Volume  $v%" "$v"
+            show volume "$icon" "Volume  $v%$( (( v > 100 )) && echo "  (boost)")" "$(( v > 100 ? 100 : v ))"
         fi ;;
     mic)
         pactl set-source-mute @DEFAULT_SOURCE@ toggle
