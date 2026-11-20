@@ -166,7 +166,7 @@ Todo lo de abajo vive en este repo; `Super+F1` muestra la lista de atajos en viv
 ## Atajos de teclado (i3, `Super` = tecla Windows)
 | Atajo | Acción |
 |---|---|
-| `Super+Space` | Lanzador rofi con pestañas APPS / DEVICES / FILES / WINDOW (`←`/`→` cambian de pestaña) |
+| `Super+Space` | Lanzador rofi con pestañas APPS / DEVICES / FILES / HEALTH (`←`/`→` cambian de pestaña) |
 | `Super+Return` | Terminal (Alacritty) |
 | `Super+O` | Menú de energía: bloquear, suspender, **fondo nuevo**, reiniciar, apagar |
 | `Super+Shift+E` | Cerrar sesión (con confirmación) |
@@ -208,12 +208,14 @@ Escritorios a la izquierda; a la derecha RAM, CPU, volumen, Wi-Fi, distribución
 ## Lanzador y Bluetooth (rofi)
 - `rofi/launchers/type-6/launcher.sh` (`Super+Space`): estilo según el tema (style-6 claro, style-7 oscuro con `rofi/images/telescope.png`, que no está en el repo por licencia).
 - Pestaña **DEVICES** (`Scripts/rofi_bt_battery.sh`): estilo Apple. Muestra lo conectado (con batería; submenú desconectar/olvidar) y lo cercano ordenado por señal. Un clic conecta, empareja y confía en el dispositivo; si un dispositivo emparejado rechaza la conexión (llave vieja) lo vuelve a emparejar solo.
+- Pestaña **HEALTH** (`Scripts/rofi_health.sh`): chequeo del sistema, problemas primero (rojo = problema, ámbar = advertencia, gris = bien). Pacman: actualizaciones pendientes (repos + AUR), última actualización completa, última sincronización, antigüedad del mirrorlist, lock huérfano, consistencia de la base de datos (`pacman -Dk`), huérfanos, `.pacnew`, tamaño de la caché. Sistema: reinicio pendiente por kernel, servicios caídos, disco, memoria, desgaste de baterías, temperatura, hora sincronizada, errores del journal, hibernación y huella. Elegir una fila abre una terminal con el detalle o el arreglo (p. ej. actualizaciones → `paru -Syu`, caché → `paru -Sc`). Muestra el último reporte al instante y lo refresca en segundo plano; las actualizaciones se buscan como `checkupdates` (copia privada de las bases de datos, máximo una vez por hora). En terminal: `rofi_health.sh --print`.
 - `rofi/powermenu/type-2/powermenu.sh` (`Super+O`). Las demás carpetas de `rofi/` son la colección original de adi1090x (temas sin usar).
 
 ## Pantalla de bloqueo y huella
 - `Scripts/lock_screen` (i3lock-color): fondo desenfocado con una tarjeta "de vidrio", reloj y fecha; sigue el tema y el fondo actual; funciona con varios monitores. El sensor escucha todo el tiempo: tocar el sensor **o** escribir la contraseña.
 - Huella (sensor Synaptics 06cb:009a de la T480): necesita `python-validity` + `open-fprintd` del AUR (no el `fprintd` normal). `Scripts/setup_fingerprint.sh` los instala y agrega la huella a `sudo` y al bloqueo. Registrar el dedo: `fprintd-enroll`.
 - En LightDM (pantalla de inicio): Enter con la contraseña vacía y luego tocar el sensor.
+- Si la huella falla **sin tocar el sensor** ("Failed to match" al instante), la calibración del arranque quedó mala (se rehace en cada arranque y se guarda en `/run`). Arreglo sin reiniciar, sin tocar el sensor mientras corre: `sudo rm /run/python-validity/calib-data.bin && sudo systemctl restart python3-validity open-fprintd`. Reiniciar solo el servicio no basta: reutiliza la calibración guardada.
 
 ## Batería, suspensión e hibernación
 - `Scripts/battery_guard`: con ≤5% (o ≤6 min restantes) muestra una cuenta regresiva de 2 min; conectar el cargador la cancela; al llegar a 0 hiberna (o apaga si no se puede). `battery_guard --test` = prueba de 15 s.

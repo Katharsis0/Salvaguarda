@@ -1,32 +1,34 @@
-
 #!/bin/bash
+# Low / full battery notifications (run every 5 min from i3/config).
+# Reads UPower's combined laptop battery (DisplayDevice): the same number the
+# polybar module and battery_guard show. It covers both T480 batteries
+# weighted by their size, and ignores Bluetooth devices. (The old version
+# averaged every line of `acpi -b`, which included the keyboard's battery, so
+# it said 15% while the real charge was 22%.)
+# The last-minute countdown + hibernate at 5% is battery_guard; this is the
+# earlier heads-up.
 
-export XAUTHORITY=/home/eric/.Xauthority
-export DISPLAY=:0
-export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
+export DISPLAY=${DISPLAY:-:0}
+export DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}
 
 WARNING_LEVEL=15
-
-# Get all battery info
-BATTERY_PERCENT_TOTAL=$(acpi -b | grep -o '[0-9]\+%' | sed 's/%//' | awk '{sum+=$1} END {print int(sum/NR)}')
-BATTERY_DISCHARGING=$(acpi -b | grep -c "Discharging")
-
 EMPTY_FILE=/tmp/batteryempty
 FULL_FILE=/tmp/batteryfull
 
-# Reset notification states
-if [ "$BATTERY_DISCHARGING" -eq 0 ] && [ -f $EMPTY_FILE ]; then
-  rm $EMPTY_FILE
-elif [ "$BATTERY_DISCHARGING" -gt 0 ] && [ -f $FULL_FILE ]; then
-  rm $FULL_FILE
-fi
+INFO=$(upower -i "$(upower -e | grep -m1 DisplayDevice)" 2>/dev/null) || exit 0
+PCT=$(awk '/percentage:/ {gsub("%", "", $2); printf "%d", $2 + 0.5}' <<<"$INFO")
+STATE=$(awk '/state:/ {print $2}' <<<"$INFO")
+LEFT=$(awk '/time to empty:/ {print $4, $5}' <<<"$INFO")
+[ -n "$PCT" ] || exit 0
 
-# If all batteries are charging and battery is full
-if [ "$BATTERY_DISCHARGING" -eq 0 ] && [ "$BATTERY_PERCENT_TOTAL" -ge 96 ] && [ ! -f $FULL_FILE ]; then
-  notify-send "Battery Charged" "Battery is fully charged." -i "battery" -r 9991
-  touch $FULL_FILE
-# If any battery is discharging and total is low
-elif [ "$BATTERY_DISCHARGING" -gt 0 ] && [ "$BATTERY_PERCENT_TOTAL" -le $WARNING_LEVEL ] && [ ! -f $EMPTY_FILE ]; then
-  notify-send "Low Battery" "${BATTERY_PERCENT_TOTAL}% of battery remaining." -u critical -i "battery-alert" -r 9991
-  touch $EMPTY_FILE
+# Reset notification states
+if [ "$STATE" != discharging ]; then rm -f "$EMPTY_FILE"; else rm -f "$FULL_FILE"; fi
+
+if [ "$STATE" != discharging ] && [ "$PCT" -ge 96 ] && [ ! -f "$FULL_FILE" ]; then
+    notify-send "Battery Charged" "Battery is fully charged." -i battery -r 9991
+    touch "$FULL_FILE"
+elif [ "$STATE" = discharging ] && [ "$PCT" -le "$WARNING_LEVEL" ] && [ ! -f "$EMPTY_FILE" ]; then
+    notify-send "Low Battery" "${PCT}% remaining${LEFT:+ (about $LEFT)}. Plug in the charger." \
+        -u critical -i battery-caution -r 9991
+    touch "$EMPTY_FILE"
 fi

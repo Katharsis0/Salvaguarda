@@ -31,7 +31,7 @@ if bluetoothctl show 2>/dev/null | grep -q 'Powered: yes'; then
 fi
 
 ## Run
-## ←/→ switch tabs (APPS / DEVICES / FILES / WINDOW) instead of moving the
+## ←/→ switch tabs (APPS / DEVICES / FILES / HEALTH) instead of moving the
 ## text cursor; Ctrl+B / Ctrl+F still move the cursor.
 rofi \
     -show drun \

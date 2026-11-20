@@ -1,7 +1,7 @@
 #!/bin/bash
 # Polybar battery module.
 #   plugged in : 󰂄 87%            (charging icon, no time estimate)
-#   on battery : 󰁿 54%  2:13      (level icon + time until empty; red when low)
+#   on battery : 󰁿 54%  2h 13m    (level icon + time until empty; red when low)
 # Uses upower's combined DisplayDevice, so the T480's two batteries are
 # weighted by capacity instead of naively averaged.
 
@@ -37,7 +37,8 @@ ICON=${ICONS[$(( PCT / 10 ))]}
 
 TIME=""
 if awk -v h="$HOURS" 'BEGIN{exit !(h > 0)}'; then
-    TIME=$(awk -v h="$HOURS" 'BEGIN{m=int(h*60+0.5); printf "  %d:%02d", m/60, m%60}')
+    # "1h 12m" / "45m": an h:mm here looked like a second clock next to the real one
+    TIME=$(awk -v h="$HOURS" 'BEGIN{m=int(h*60+0.5); if (m >= 60) printf "  %dh %02dm", m/60, m%60; else printf "  %dm", m}')
 fi
 
 if (( PCT <= 15 )); then
