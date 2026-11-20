@@ -1,0 +1,3 @@
+github.copilot-chat
+ms-vscode.cpptools
+platformio.platformio-ide

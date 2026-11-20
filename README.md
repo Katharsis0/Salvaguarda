@@ -3,6 +3,23 @@ Instrucciones del Sebas del pasado para el Sebas del futuro en caso de que requi
 
 -Nota: Priorizar el backupeo de los archivos del sistema en un disco externo para redundar la informacion en caso de situaciones críticas
 
+# Recuperación rápida
+Después de `archinstall` (perfil mínimo + red), con el repo clonado en `~/GitHub/dotfiles`:
+
+```
+git clone git@github.com:Katharsis0/Salvaguarda.git ~/GitHub/dotfiles
+~/GitHub/dotfiles/install.sh --dry-run   # muestra qué haría, sin tocar nada
+~/GitHub/dotfiles/install.sh             # lo hace, preguntando antes de cada paso
+```
+
+`install.sh` instala los paquetes (`system/packages/`: pacman, AUR con paru y extensiones de VS Code), crea los symlinks de `symlinks.txt`, copia los archivos de `system/home/` y `system/etc/`, habilita los servicios y ofrece correr `setup_fingerprint.sh` y `setup_hibernate.sh`. Lo que ya exista se mueve a `*.bak-<fecha>`, nunca se borra. Se puede correr varias veces.
+
+Para mantener el respaldo al día (después de instalar programas o tocar algo de `/etc`):
+```
+~/GitHub/dotfiles/Scripts/backup_system.sh && git -C ~/GitHub/dotfiles add system && git -C ~/GitHub/dotfiles commit -m "Actualizar respaldo del sistema"
+```
+Luego seguir **Pasos manuales** (al final): lo que no puede ir en un repo público.
+
 # Arch
 Para instalar se debe flashear un USB drive con la imagen. Una vez flasheada, se conecta a la compu y se bootea.
 
@@ -142,3 +159,95 @@ Dependencias: `imagemagick`, `jq`, `curl`, `feh`, `dunst` (`libnotify`), `i3lock
 **Paleta clara "bone"** (`#F2EEE6`): blanco hueso en vez de blanco puro, menos agresivo pero con buen contraste para días soleados. Alacritty claro usa `alacritty/bone-light.toml` (Catppuccin Latte sobre fondo hueso).
 
 Archivos generados por `theme.sh` (no se versionan): `polybar/colors-current.ini`, `alacritty/theme-current.toml`, `i3/theme-current.conf` (incluido desde `i3/config`).
+
+# Referencia de funciones
+Todo lo de abajo vive en este repo; `Super+F1` muestra la lista de atajos en vivo (sale de `i3/config`).
+
+## Atajos de teclado (i3, `Super` = tecla Windows)
+| Atajo | Acción |
+|---|---|
+| `Super+Space` | Lanzador rofi con pestañas APPS / DEVICES / FILES / WINDOW (`←`/`→` cambian de pestaña) |
+| `Super+Return` | Terminal (Alacritty) |
+| `Super+O` | Menú de energía: bloquear, suspender, **fondo nuevo**, reiniciar, apagar |
+| `Super+Shift+E` | Cerrar sesión (con confirmación) |
+| `Super+L` | Bloquear pantalla (huella o contraseña) |
+| `Super+T` | Tema claro/oscuro |
+| `Super+P` | Distribución de teclado latam ↔ us |
+| `Super+V` | Historial del portapapeles (CopyQ) |
+| `Super+Shift+S` | Captura de pantalla (Flameshot) |
+| `Super+N` | Renombrar la ventana (título en modo pestañas/apilado) |
+| `Super+F1` | Lista buscable de todos los atajos |
+| `Super+D` | dmenu |
+| `Super+1…0` / `Super+Shift+1…0` | Ir a / mover ventana a escritorio 1–10 |
+| `Super+X` / `Super+Z` | Escritorio siguiente / anterior |
+| `Super+<` / `Super+>` | Mover el escritorio al otro monitor |
+| `Super+J/K/;` y flechas | Enfocar ventana (con `Shift`: moverla) |
+| `Super+H` / `Super+Shift+V` | Dividir horizontal / vertical |
+| `Super+W` / `Super+S` / `Super+E` | Pestañas / apilado / alternar división |
+| `Super+F` | Pantalla completa |
+| `Super+Shift+Space` | Ventana flotante |
+| `Super+A` | Enfocar contenedor padre |
+| `Super+R` | Modo redimensionar (flechas o J/K/L/;, `Esc` para salir) |
+| `Super+Shift+Q` | Cerrar ventana |
+| `Super+Shift+C` / `Super+Shift+R` | Recargar / reiniciar i3 |
+| `AltGr+H/J/K/L` | Flechas ← ↓ ↑ → (la flecha derecha física de la laptop está dañada) |
+| Teclas de volumen, brillo y micrófono | `pactl` / `brightnessctl` (`Super`+volumen = pasos de 1%) |
+
+Escritorios con programa asignado: 1 Firefox · 2 Alacritty · 3 IDEs (CLion, Android Studio, VS Code, Rider) · 4 Thunderbird · 5 Nautilus · 6 Discord/Zoom · 7 Minecraft · 9 Ferdium/Telegram · 10 Spotify.
+
+## Qué arranca con i3
+- `theme.sh apply` (tema, fondo, colores), `keyboard.sh` (latam + flechas AltGr), `xset -b` (sin pitido).
+- `display.sh auto`: detecta dock / HDMI / solo laptop (ver abajo).
+- `battery_guard`, aviso de batería (`batterynotify` cada 5 min) y `photo_wallpaper.sh --daemon`.
+- `picom` (transparencias/animaciones, backend glx), `dunst` (notificaciones arriba a la derecha), `copyq`, `nm-applet`, `dex` (autostart XDG: Ferdium).
+- `xss-lock` → `lock_screen` al suspender o por inactividad.
+
+## Barra (polybar)
+Escritorios a la izquierda; a la derecha RAM, CPU, volumen, Wi-Fi, distribución de teclado, batería (`Scripts/batterystatus`: ícono según nivel, tiempo restante, rojo ≤15%, 󰂄 cargando) y fecha/hora. Colores en `polybar/colors-dark.ini` / `colors-light.ini`; el color de acento lo pone `theme.sh` desde el fondo. `polybar/launch.sh` lanza la barra `main` en la laptop y `secondary` en monitores externos.
+
+## Lanzador y Bluetooth (rofi)
+- `rofi/launchers/type-6/launcher.sh` (`Super+Space`): estilo según el tema (style-6 claro, style-7 oscuro con `rofi/images/telescope.png`, que no está en el repo por licencia).
+- Pestaña **DEVICES** (`Scripts/rofi_bt_battery.sh`): estilo Apple. Muestra lo conectado (con batería; submenú desconectar/olvidar) y lo cercano ordenado por señal. Un clic conecta, empareja y confía en el dispositivo; si un dispositivo emparejado rechaza la conexión (llave vieja) lo vuelve a emparejar solo.
+- `rofi/powermenu/type-2/powermenu.sh` (`Super+O`). Las demás carpetas de `rofi/` son la colección original de adi1090x (temas sin usar).
+
+## Pantalla de bloqueo y huella
+- `Scripts/lock_screen` (i3lock-color): fondo desenfocado con una tarjeta "de vidrio", reloj y fecha; sigue el tema y el fondo actual; funciona con varios monitores. El sensor escucha todo el tiempo: tocar el sensor **o** escribir la contraseña.
+- Huella (sensor Synaptics 06cb:009a de la T480): necesita `python-validity` + `open-fprintd` del AUR (no el `fprintd` normal). `Scripts/setup_fingerprint.sh` los instala y agrega la huella a `sudo` y al bloqueo. Registrar el dedo: `fprintd-enroll`.
+- En LightDM (pantalla de inicio): Enter con la contraseña vacía y luego tocar el sensor.
+
+## Batería, suspensión e hibernación
+- `Scripts/battery_guard`: con ≤5% (o ≤6 min restantes) muestra una cuenta regresiva de 2 min; conectar el cargador la cancela; al llegar a 0 hiberna (o apaga si no se puede). `battery_guard --test` = prueba de 15 s.
+- `Scripts/setup_hibernate.sh` (con sudo, una vez): swapfile de 16G solo para hibernar (zram sigue siendo el swap normal), hook `resume`, `resume=`/`resume_offset=` en GRUB, tapa cerrada → suspender y luego hibernar si la batería se agota, UPower crítico → hibernar, huella en LightDM y fondo de bienvenida (`desktop_bgs/welcome.jpg`). Respaldos `*.bak-hibernate`.
+- `Scripts/goodbye.sh poweroff|reboot|logout`: muestra `desktop_bgs/bye.jpg` 1.8 s antes de apagar/reiniciar/salir.
+
+## Pantallas
+`Scripts/display.sh [auto|dock|hdmi|laptop]` (alias `screens`, `dock`, `hdmi`, `solo`): dock = laptop a la izquierda + DP-1-2 horizontal + DP-1-3-1 vertical; hdmi = HDMI-2 a la izquierda + laptop. `Scripts/wallpaper.sh` arma el fondo para todos los monitores (los verticales sin deformar).
+
+## Teclado
+- Distribución latam (`/etc/X11/xorg.conf.d/00-keyboard.conf`, respaldado en `system/etc/`). Cambiar de distribución siempre con `Scripts/keyboard.sh` / `toggle_layout.sh`: un `setxkbmap` a secas borra las flechas AltGr (`xkb/symbols/arrows`).
+- Touchpad: tap, clic con dedos y scroll natural (`30-touchpad.conf`).
+
+## Terminal y shell
+- Alacritty: JetBrainsMono Nerd Font 12, tema Catppuccin Mocha (oscuro) / `bone-light.toml` (claro), cambia en vivo con el tema.
+- `.bashrc`: prompt `(✿◠‿◠)` con rama de git (`Scripts/.git-prompt-zkwinkle`), `ls` con `eza`, alias de git (`gc`, `gco`, `gbr`, `gsts`, `glog`), `config` (ir al repo), `vim`→`nvim`, `mimir` (bloquear), `off`, `pdf archivo` (abre en Okular), `title "texto"` (título de la ventana).
+- Neovim: LazyVim (`nvim/`, versiones fijadas en `lazy-lock.json`).
+- `.gitconfig`: usuario, `bat` como pager, git-lfs.
+
+## Scripts sin usar
+`Scripts/cava.py`, `Scripts/mic.sh` (módulo de micrófono para polybar) y `Scripts/weather.py` (clima de Cartago con OpenWeather; la API key va en `~/.config/openweather/api_key`, fuera del repo) no están conectados a nada ahora mismo.
+
+# Pasos manuales
+Lo que **no** está en el repo (es público) y hay que rehacer o restaurar desde un respaldo privado:
+- Llaves SSH (`~/.ssh`) y GPG (`~/.gnupg`), y volver a agregar la llave SSH a GitHub.
+- Redes Wi-Fi (`nmtui`; la de wTEC está arriba) — `/etc/NetworkManager/system-connections` tiene contraseñas.
+- Tailscale: `sudo tailscale up` y aprobar el equipo.
+- Huella: `fprintd-enroll` después de `setup_fingerprint.sh`.
+- API key de OpenWeather en `~/.config/openweather/api_key` (solo si se vuelve a usar `weather.py`).
+- Datos de PostgreSQL y OpenLDAP (`slapd`): respaldar con `pg_dumpall` / `slapcat` y restaurar antes de habilitar esos servicios.
+- Perfiles de navegador, Thunderbird, Ferdium, Spotify, JetBrains: iniciar sesión / sincronizar.
+- Imágenes con licencia que no se pueden publicar: `rofi/images/telescope.png` y `desktop_bgs/premium_photo-*` (si faltan, el lanzador oscuro queda sin imagen).
+- Bluetooth: volver a emparejar (teclado Keychron K6, mouse, audífonos JBL, parlante Wonderboom) desde `Super+Space` → DEVICES.
+
+## Pendientes conocidos
+- `/etc/systemd/system/lock-screen.service` es un servicio viejo (2025) que systemd rechaza por un `User=` inválido; no hace nada. Borrarlo: `sudo systemctl disable lock-screen.service && sudo rm /etc/systemd/system/lock-screen.service`.
+- Quedó un enlace de `waydroid-container.service` de un paquete ya desinstalado: `sudo rm /etc/systemd/system/multi-user.target.wants/waydroid-container.service`.

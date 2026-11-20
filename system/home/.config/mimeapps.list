@@ -1,0 +1,24 @@
+[Default Applications]
+x-scheme-handler/jetbrains=jetbrains-toolbox.desktop
+x-scheme-handler/mailto=userapp-Thunderbird-F9ZH72.desktop
+message/rfc822=userapp-Thunderbird-F9ZH72.desktop
+x-scheme-handler/mid=userapp-Thunderbird-F9ZH72.desktop
+x-scheme-handler/webcal=userapp-Thunderbird-J9TG72.desktop
+text/calendar=userapp-Thunderbird-J9TG72.desktop
+application/x-extension-ics=userapp-Thunderbird-J9TG72.desktop
+x-scheme-handler/webcals=userapp-Thunderbird-J9TG72.desktop
+x-scheme-handler/figma=figma-linux.desktop
+x-scheme-handler/postman=Postman.desktop
+text/html=firefox.desktop
+x-scheme-handler/http=firefox.desktop
+x-scheme-handler/https=firefox.desktop
+x-scheme-handler/about=firefox.desktop
+x-scheme-handler/unknown=firefox.desktop
+x-scheme-handler/claude-cli=claude-code-url-handler.desktop
+
+[Added Associations]
+x-scheme-handler/mailto=userapp-Thunderbird-F9ZH72.desktop;
+x-scheme-handler/mid=userapp-Thunderbird-F9ZH72.desktop;
+x-scheme-handler/webcal=userapp-Thunderbird-J9TG72.desktop;
+x-scheme-handler/webcals=userapp-Thunderbird-J9TG72.desktop;
+application/vnd.openxmlformats-officedocument.wordprocessingml.document=libreoffice-writer.desktop;okularApplication_xps.desktop;

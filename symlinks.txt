@@ -1,5 +1,7 @@
 # Symlinks
 
+`install.sh` reads the `ln -s` lines below (single source of truth): add new links here.
+
 ```
 ln -s ~/GitHub/dotfiles/i3/ ~/.config/i3
 ln -s ~/GitHub/dotfiles/alacritty/ ~/.config/alacritty
@@ -13,7 +15,10 @@ ln -s ~/GitHub/dotfiles/flameshot/ ~/.config/flameshot
 ln -s ~/GitHub/dotfiles/Scripts/ ~/.config/Scripts
 ln -s ~/GitHub/dotfiles/xkb/ ~/.config/xkb
 ln -s ~/GitHub/dotfiles/.bashrc ~/.bashrc
+ln -s ~/GitHub/dotfiles/.bash_profile ~/.bash_profile
 ln -s ~/GitHub/dotfiles/Scripts/chargingnotify ~/.local/bin/
+ln -s ~/GitHub/dotfiles/Scripts/batterynotify ~/.local/bin/
+ln -s ~/GitHub/dotfiles/Scripts/.git-prompt-zkwinkle ~/.local/bin/
 ln -s ~/GitHub/dotfiles/Scripts/batterystatus ~/.local/bin/
 ln -s ~/GitHub/dotfiles/git/.gitconfig ~/
 ```

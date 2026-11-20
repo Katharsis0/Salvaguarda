@@ -263,7 +263,7 @@ mode "resize" {
         bindsym semicolon resize grow width 10 px or 10 ppt
 
         # same bindings, but for the arrow keys
-        bindsym Left shrink width 10 px or 10 ppt
+        bindsym Left resize shrink width 10 px or 10 ppt
 
         bindsym Down resize grow height 10 px or 10 ppt
         bindsym Up resize shrink height 10 px or 10 ppt
@@ -281,7 +281,7 @@ bindsym $mod+r mode "resize"
 
 default_border pixel 1
 default_floating_border pixel 1
-for_window [class=“^.*”] border pixel 1
+for_window [class="^.*"] border pixel 1
 
 
 #Enable gaps

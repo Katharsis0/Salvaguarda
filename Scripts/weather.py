@@ -3,7 +3,11 @@ import json
 
 # Settings
 city = "Cartago, CR" # Your town
-api_key = "3effea9f1815e750b3e84dfaefb7a1f1" # Your openweather api key
+# OpenWeather API key lives outside the (public) repo:
+#   ~/.config/openweather/api_key   (or the OPENWEATHER_API_KEY env var)
+import os
+_key_file = os.path.expanduser("~/.config/openweather/api_key")
+api_key = os.environ.get("OPENWEATHER_API_KEY") or (open(_key_file).read().strip() if os.path.exists(_key_file) else "")
 units = "metric" # Unit system {imperial or metric}
 temperature_unit = "C" # Units of measurement. That will be showed in UI. Does not affect on API.
 
