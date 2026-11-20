@@ -30,8 +30,13 @@ exec --no-startup-id ~/.config/Scripts/battery_guard
 
 ## Menu de Aplicaciones
 bindsym $mod+space exec --no-startup-id ~/.config/rofi/launchers/type-6/launcher.sh
+# rename the focused window / Alacritty "tab" (empty = restore)
+bindsym $mod+n exec --no-startup-id ~/.config/Scripts/rename_window.sh
+## Keybinding cheatsheet (searchable; Enter runs it)
+bindsym $mod+F1 exec --no-startup-id ~/.config/Scripts/keybinds.sh
 
-bindsym $mod+o exec --no-startup-id powermenu_t2
+## Power menu (lock / sleep / logout / reboot / shut down)
+bindsym $mod+o exec --no-startup-id ~/.config/rofi/powermenu/type-2/powermenu.sh
 ## Screenshot
 bindsym $mod+shift+s exec --no-startup-id flameshot gui
 

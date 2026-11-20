@@ -33,37 +33,65 @@ else
     TRACK=00000018; SHADOW=82
 fi
 
-# Resolution of the primary (or first connected) output
-RES=$(xrandr | awk '/ primary /{for(i=1;i<=NF;i++) if($i ~ /^[0-9]+x[0-9]+\+/){sub(/\+.*/,"",$i); print $i; exit}}')
-[ -z "$RES" ] && RES=$(xrandr | awk '/ connected/{for(i=1;i<=NF;i++) if($i ~ /^[0-9]+x[0-9]+\+/){sub(/\+.*/,"",$i); print $i; exit}}')
-[ -z "$RES" ] && RES=1920x1080
-W=${RES%x*}; H=${RES#*x}
+# Monitors as "W H X Y" (xrandr --listmonitors), primary first. Works for
+# one laptop panel, a dock, or any mix of resolutions/offsets.
+MONS=$(xrandr --listmonitors | awk 'NR>1 {
+        g=$3; prim=($2 ~ /\*/)
+        split(g, a, /[\/x+]/)              # 1366/309x768/173+0+0
+        line=a[1]" "a[3]" "a[5]" "a[6]
+        if (prim) print line; else rest=rest line "\n" }
+    END { printf "%s", rest }')
+[ -n "${LOCK_MONITORS:-}" ] && MONS=$LOCK_MONITORS     # testing override
+[ -z "$MONS" ] && MONS="1920 1080 0 0"
+ROOT=${LOCK_ROOT:-}
+[ -z "$ROOT" ] && ROOT=$(xrandr | awk '/current/ {for(i=1;i<=NF;i++) if($i=="current"){print $(i+1)"x"$(i+3); exit}}' | tr -d ,)
+[ -z "$ROOT" ] && ROOT=$(awk 'NR==1{print $1"x"$2}' <<<"$MONS")
 
-# Everything scales with the screen height (designed at 1080p)
-S=$(awk -v h="$H" 'BEGIN{printf "%.3f", h/1080}')
+# One scale for everything (designed at 1080p), taken from the primary
+# monitor: i3lock uses a single font size for all screens, so every monitor
+# gets the same-size card, centred on it.
+read -r PW PH _ <<<"$(head -n1 <<<"$MONS")"
+S=$(awk -v h="$PH" 'BEGIN{printf "%.3f", h/1080}')
 px() { awk -v s="$S" -v v="$1" 'BEGIN{printf "%d", v*s+0.5}'; }
 CW=$(px 560); CH=$(px 330); CR=$(px 28)          # card size / corner radius
 BAR_W=$(px 300)
 
 CACHE_DIR="$HOME/.cache/i3lock"
-IMG="$CACHE_DIR/card-$MODE-$RES.png"
 mkdir -p "$CACHE_DIR"
+rgba() { magick xc:"$1" -format "rgba(%[fx:int(255*r)],%[fx:int(255*g)],%[fx:int(255*b)],$2)" info:; }
 
-if [ ! -f "$IMG" ] || [ "$WALL" -nt "$IMG" ] || [ "$0" -nt "$IMG" ]; then
-    X0=$(( (W - CW) / 2 )); Y0=$(( (H - CH) / 2 ))
-    X1=$(( X0 + CW ));      Y1=$(( Y0 + CH ))
-    magick "$WALL" -resize "${RES}^" -gravity center -extent "$RES" \
-        -scale 25% -blur 0x6 -resize "$RES!" \
-        -fill "$TINT" -colorize "$TINT_PCT%" \
-        \( +clone -fill white -colorize 100 \
-           -fill black -draw "roundrectangle $X0,$((Y0+$(px 14))) $X1,$((Y1+$(px 14))) $CR,$CR" \
-           -blur 0x$(px 26) +level ${SHADOW}%,100% \) \
-        -compose multiply -composite \
-        -fill "rgba($(magick xc:"$CARD" -format '%[fx:int(255*r)],%[fx:int(255*g)],%[fx:int(255*b)]' info:),$CARD_A)" \
-        -stroke "rgba($(magick xc:"$EDGE" -format '%[fx:int(255*r)],%[fx:int(255*g)],%[fx:int(255*b)]' info:),$EDGE_A)" \
-        -strokewidth 1 \
-        -draw "roundrectangle $X0,$Y0 $X1,$Y1 $CR,$CR" \
-        "$IMG" 2>/dev/null
+# Blurred wallpaper + card for one monitor size; cached.
+card() {  # card W H -> prints path
+    local W=$1 H=$2 out="$CACHE_DIR/card-$MODE-${1}x${2}-s$S.png"
+    if [ ! -f "$out" ] || [ "$WALL" -nt "$out" ] || [ "$0" -nt "$out" ]; then
+        local X0=$(( (W - CW) / 2 )) Y0=$(( (H - CH) / 2 ))
+        local X1=$(( X0 + CW ))      Y1=$(( Y0 + CH ))
+        magick "$WALL" -resize "${W}x${H}^" -gravity center -extent "${W}x${H}" \
+            -scale 25% -blur 0x6 -resize "${W}x${H}!" \
+            -fill "$TINT" -colorize "$TINT_PCT%" \
+            \( +clone -fill white -colorize 100 \
+               -fill black -draw "roundrectangle $X0,$((Y0+$(px 14))) $X1,$((Y1+$(px 14))) $CR,$CR" \
+               -blur 0x$(px 26) +level ${SHADOW}%,100% \) \
+            -compose multiply -composite \
+            -fill "$(rgba "$CARD" $CARD_A)" -stroke "$(rgba "$EDGE" $EDGE_A)" -strokewidth 1 \
+            -draw "roundrectangle $X0,$Y0 $X1,$Y1 $CR,$CR" \
+            "$out" 2>/dev/null
+    fi
+    echo "$out"
+}
+
+if [ "$(wc -l <<<"$MONS")" = 1 ] && [ "$(awk '{print $1"x"$2"+"$3"+"$4}' <<<"$MONS")" = "$ROOT+0+0" ]; then
+    IMG=$(card $PW $PH)                       # single screen: card is the image
+else
+    # several monitors: paint each monitor's card at its offset on one canvas
+    KEY=$(printf '%s %s %s' "$MODE" "$ROOT" "$MONS" | md5sum | cut -c1-10)
+    IMG="$CACHE_DIR/layout-$KEY.png"
+    PARTS=(); STALE=0; [ -f "$IMG" ] || STALE=1
+    while read -r w h x y; do
+        c=$(card "$w" "$h"); [ "$c" -nt "$IMG" ] && STALE=1
+        PARTS+=( "$c" -geometry "+$x+$y" -composite )
+    done <<<"$MONS"
+    [ $STALE = 1 ] && magick -size "$ROOT" xc:black "${PARTS[@]}" "$IMG" 2>/dev/null
 fi
 
 if [ -n "${LOCK_PREVIEW:-}" ]; then echo "$IMG"; exit 0; fi
@@ -77,20 +105,20 @@ FONT_THIN="JetBrainsMono NF ExtraLight"
 ARGS=("${IMG_ARGS[@]}")
 # Plain i3lock (not yet replaced by i3lock-color) doesn't know the styling flags
 if i3lock --version 2>&1 | grep -qE "version [0-9.]+\.c\."; then   # i3lock-color is "2.13.c.N"
-    CY="h/2"   # card centre (positions are relative to each screen)
+    CX="x+w/2"; CY="y+h/2"   # card centre on *each* monitor
     ARGS+=(
     --force-clock
     --time-str="%H:%M"              --date-str="%A · %d %B"
     --time-font="$FONT_THIN"        --date-font="$FONT"
     --time-size=$(px 112)           --date-size=$(px 17)
     --time-color=$FG                --date-color=$PRIMARY
-    --time-pos="w/2:$CY-$(px 18)"   --date-pos="w/2:$CY+$(px 26)"
+    --time-pos="$CX:$CY-$(px 18)"   --date-pos="$CX:$CY+$(px 26)"
 
     # hairline "input" bar under the date; segments flash as you type
     --bar-indicator --indicator
     --bar-orientation=horizontal --bar-direction=2
     --bar-total-width=$BAR_W --bar-max-height=$(px 4) --bar-base-width=$(px 2)
-    --bar-pos="w/2-$((BAR_W/2)):$CY+$(px 62)"
+    --bar-pos="$CX-$((BAR_W/2)):$CY+$(px 62)"
     --bar-count=24 --bar-step=$(px 3) --bar-periodic-step=0
     --bar-color=$TRACK
     --keyhl-color=$PRIMARY       --bshl-color=$ALERT
@@ -99,17 +127,17 @@ if i3lock --version 2>&1 | grep -qE "version [0-9.]+\.c\."; then   # i3lock-colo
 
     --greeter-text="󰈷   touch the sensor  ·  or type your password"
     --greeter-font="$FONT" --greeter-size=$(px 13) --greeter-color=$DIM
-    --greeter-pos="w/2:$CY+$(px 115)"
+    --greeter-pos="$CX:$CY+$(px 115)"
 
     --verif-text="unlocking…"  --wrong-text="try again"
     --noinput-text="" --lock-text="" --lockfailed-text="lock failed"
     --verif-font="$FONT" --wrong-font="$FONT"
     --verif-size=$(px 13) --wrong-size=$(px 13)
     --verif-color=$SECONDARY --wrong-color=$ALERT
-    --verif-pos="w/2:$CY+$(px 92)" --wrong-pos="w/2:$CY+$(px 92)"
+    --verif-pos="$CX:$CY+$(px 92)" --wrong-pos="$CX:$CY+$(px 92)"
 
     # layout indicator only appears when it matters (e.g. caps lock)
-    --modif-color=$ALERT --modif-size=$(px 12) --modif-pos="w/2:$CY+$(px 140)"
+    --modif-color=$ALERT --modif-size=$(px 12) --modif-pos="$CX:$CY+$(px 140)"
 
     --pass-media-keys --pass-screen-keys --pass-volume-keys
     )
@@ -122,6 +150,11 @@ pgrep -xu "$U" i3lock >/dev/null && exit 0   # already locked
 # xss-lock's sleep-delay fd; closing ours afterwards lets suspend proceed.
 if [[ -n ${XSS_SLEEP_LOCK_FD:-} && -e /dev/fd/$XSS_SLEEP_LOCK_FD ]]; then
     i3lock "${ARGS[@]}" {XSS_SLEEP_LOCK_FD}<&-
+    # i3lock has grabbed input, but picom may not have put its window on the
+    # screen yet. Suspending right now freezes the old frame, so after resume
+    # the desktop shows for a moment before the lock appears. Hold the sleep
+    # (logind allows up to 5 s) until the lock is really visible.
+    sleep 1
     exec {XSS_SLEEP_LOCK_FD}<&-
 else
     i3lock "${ARGS[@]}"

@@ -6,7 +6,7 @@ padding.x = 4
 padding.y = 4
 decorations = "full"
 startup_mode = "Maximized"
-dynamic_title = false
+dynamic_title = true
 option_as_alt = "Both"
 title = "Terminal"
 

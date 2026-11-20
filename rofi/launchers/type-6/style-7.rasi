@@ -9,10 +9,10 @@
 
 /*****----- Configuration -----*****/
 configuration {
-	modi:                       "drun,run,filebrowser,window";
+	modi:                       "drun,bt:~/.config/Scripts/rofi_bt_battery.sh,filebrowser,window";
     show-icons:                 true;
     display-drun:               "APPS";
-    display-run:                "RUN";
+    display-bt:                 "DEVICES";
     display-filebrowser:        "FILES";
     display-window:             "WINDOW";
 	drun-display-format:        "{name}";

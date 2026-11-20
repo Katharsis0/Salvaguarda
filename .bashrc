@@ -75,3 +75,6 @@ pdf() {
 # models: thinkpad layout: latam
 
 export PATH=$PATH:/home/katharsis/.spicetify
+
+# Rename this terminal's window/tab:  title my-name   (no args -> "Terminal")
+title() { printf '\033]0;%s\007' "${*:-Terminal}"; }
