@@ -63,9 +63,9 @@ run_cmd() {
 	selected="$(confirm_exit)"
 	if [[ "$selected" == "$yes" ]]; then
 		if [[ $1 == '--shutdown' ]]; then
-			systemctl poweroff
+			~/.config/Scripts/goodbye.sh poweroff
 		elif [[ $1 == '--reboot' ]]; then
-			systemctl reboot
+			~/.config/Scripts/goodbye.sh reboot
 		elif [[ $1 == '--suspend' ]]; then
 			mpc -q pause
 			amixer set Master mute
@@ -76,7 +76,7 @@ run_cmd() {
 			elif [[ "$DESKTOP_SESSION" == 'bspwm' ]]; then
 				bspc quit
 			elif [[ "$DESKTOP_SESSION" == 'i3' ]]; then
-				i3-msg exit
+				~/.config/Scripts/goodbye.sh logout
 			elif [[ "$DESKTOP_SESSION" == 'plasma' ]]; then
 				qdbus org.kde.ksmserver /KSMServer logout 0 0 0
 			fi

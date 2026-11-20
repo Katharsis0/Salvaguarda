@@ -36,7 +36,7 @@ case $chosen in
 $shutdown)
   ans=$(confirm_exit &)
   if [[ $ans == "yes" || $ans == "YES" || $ans == "y" || $ans == "Y" ]]; then
-    systemctl poweroff
+    ~/.config/Scripts/goodbye.sh poweroff
   elif [[ $ans == "no" || $ans == "NO" || $ans == "n" || $ans == "N" ]]; then
     exit 0
   else
@@ -46,7 +46,7 @@ $shutdown)
 $reboot)
   ans=$(confirm_exit &)
   if [[ $ans == "yes" || $ans == "YES" || $ans == "y" || $ans == "Y" ]]; then
-    systemctl reboot
+    ~/.config/Scripts/goodbye.sh reboot
   elif [[ $ans == "no" || $ans == "NO" || $ans == "n" || $ans == "N" ]]; then
     exit 0
   else
@@ -76,7 +76,7 @@ $logout)
     elif [[ "$DESKTOP_SESSION" == "bspwm" ]]; then
       bspc quit
     elif [[ "$DESKTOP_SESSION" == "i3" ]]; then
-      i3-msg exit
+      ~/.config/Scripts/goodbye.sh logout
     fi
   elif [[ $ans == "no" || $ans == "NO" || $ans == "n" || $ans == "N" ]]; then
     exit 0

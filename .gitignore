@@ -10,3 +10,7 @@ copyq/.copyq_s
 *.swp
 *.orig
 .DS_Store
+
+# Licensed (Unsplash+) photo: fine to use locally, not to redistribute
+desktop_bgs/premium_photo-*
+rofi/images/telescope.png

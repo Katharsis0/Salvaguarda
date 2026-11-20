@@ -8,6 +8,7 @@
 #      critical action -> Hibernate. The 2-minute countdown is battery_guard.
 #   3. Fingerprint at the LightDM login screen (+ start the sensor service
 #      before LightDM so it's ready at boot).
+#   4. Login screen background: desktop_bgs/welcome.jpg ("Hello friend").
 # Every edited file gets a .bak-hibernate backup. Safe to re-run.
 set -euo pipefail
 [ "$(id -u)" = 0 ] || { echo "run with sudo"; exit 1; }
@@ -88,6 +89,22 @@ Wants=python3-validity.service open-fprintd.service
 After=python3-validity.service open-fprintd.service
 EOF
 systemctl daemon-reload
+
+# ---------------------------------------------------------------- 4. welcome screen
+WELCOME="$(dirname "$(readlink -f "$0")")/../desktop_bgs/welcome.jpg"
+if [ -f "$WELCOME" ]; then
+    echo "==> Login screen background: welcome.jpg"
+    # the greeter runs as the lightdm user, which can't read /home
+    install -Dm644 "$WELCOME" /usr/share/backgrounds/welcome.jpg
+    [ -f /etc/lightdm/slick-greeter.conf ] && bak /etc/lightdm/slick-greeter.conf
+    cat > /etc/lightdm/slick-greeter.conf <<'EOF2'
+[Greeter]
+background=/usr/share/backgrounds/welcome.jpg
+background-color=#000000
+draw-user-backgrounds=false
+draw-grid=false
+EOF2
+fi
 
 echo
 echo "Done. Reboot, then test hibernation with:  systemctl hibernate"

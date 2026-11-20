@@ -20,7 +20,25 @@ else
     theme='style-7'
 fi
 
+## Scan for Bluetooth devices while the launcher is open, so the DEVICES tab
+## (Scripts/rofi_bt_battery.sh) can list what's nearby. BlueZ ties a scan to
+## the client that started it, so it stops when we kill this one.
+SCAN=""
+if bluetoothctl show 2>/dev/null | grep -q 'Powered: yes'; then
+    bluetoothctl --timeout 120 scan on >/dev/null 2>&1 &
+    SCAN=$!
+    date +%s > "${XDG_RUNTIME_DIR:-/tmp}/bt_scan_started"
+fi
+
 ## Run
+## ←/→ switch tabs (APPS / DEVICES / FILES / WINDOW) instead of moving the
+## text cursor; Ctrl+B / Ctrl+F still move the cursor.
 rofi \
     -show drun \
-    -theme ${dir}/${theme}.rasi
+    -theme ${dir}/${theme}.rasi \
+    -kb-move-char-back "Control+b" \
+    -kb-move-char-forward "Control+f" \
+    -kb-mode-previous "Left,Shift+Left,Control+ISO_Left_Tab" \
+    -kb-mode-next "Right,Shift+Right,Control+Tab"
+
+[ -n "$SCAN" ] && kill "$SCAN" 2>/dev/null
