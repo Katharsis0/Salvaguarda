@@ -109,6 +109,9 @@ step_hardware() {
     echo "   setup_hibernate.sh   : swapfile + resume, lid -> suspend-then-hibernate, LightDM fingerprint, login background"
     if ask "Run setup_fingerprint.sh?"; then run "$DOTFILES/Scripts/setup_fingerprint.sh"; fi
     if ask "Run setup_hibernate.sh (sudo)?"; then run sudo "$DOTFILES/Scripts/setup_hibernate.sh"; fi
+    echo "   setup_laptop.sh      : battery care limit + TLP, throttling fix, firmware check, weekly cleanup, desktop packages"
+    if ask "Run setup_laptop.sh?"; then run "$DOTFILES/Scripts/setup_laptop.sh"; fi
+    echo "   Secrets (SSH/GPG keys, Wi-Fi): Scripts/backup_secrets.sh restore <file>  (download it from your cloud with rclone)"
 }
 
 [ $DRY = 1 ] && echo "DRY RUN: nothing will be changed."

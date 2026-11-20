@@ -61,6 +61,7 @@ alias hdmi='~/.config/Scripts/display.sh hdmi'
 alias dock='~/.config/Scripts/display.sh dock'
 alias solo='~/.config/Scripts/display.sh laptop'
 alias screens='~/.config/Scripts/display.sh auto'
+alias windows='~/.config/Scripts/rdp.sh'      # remote desktop to the Windows PC (Tailscale + RDP)
 alias downloads='cd ~/Downloads/'
 alias feh='feh -F'
 alias proton='proton-ge'

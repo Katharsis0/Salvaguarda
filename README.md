@@ -177,6 +177,9 @@ Todo lo de abajo vive en este repo; `Super+F1` muestra la lista de atajos en viv
 | `Super+Shift+S` | Captura de pantalla (Flameshot) |
 | `Super+N` | Renombrar la ventana (título en modo pestañas/apilado) |
 | `Super+F1` | Lista buscable de todos los atajos |
+| `Super+Alt+Space` / `Super+Alt+→` / `Super+Alt+←` | Play/pausa, siguiente, anterior (Spotify, navegador, mpv…) |
+| `Super+Shift+N` | Encender/apagar la luz nocturna |
+| Clic en la batería (polybar) | Alternar límite de carga 80% ↔ una carga completa |
 | `Super+D` | dmenu |
 | `Super+1…0` / `Super+Shift+1…0` | Ir a / mover ventana a escritorio 1–10 |
 | `Super+X` / `Super+Z` | Escritorio siguiente / anterior |
@@ -191,7 +194,7 @@ Todo lo de abajo vive en este repo; `Super+F1` muestra la lista de atajos en viv
 | `Super+Shift+Q` | Cerrar ventana |
 | `Super+Shift+C` / `Super+Shift+R` | Recargar / reiniciar i3 |
 | `AltGr+H/J/K/L` | Flechas ← ↓ ↑ → (la flecha derecha física de la laptop está dañada) |
-| Teclas de volumen, brillo y micrófono | `pactl` / `brightnessctl` (`Super`+volumen = pasos de 1%) |
+| Teclas de volumen, brillo y micrófono | Con barrita en pantalla (`Scripts/osd.sh`); `Super`+volumen = pasos de 1%; el volumen no pasa de 100% |
 
 Escritorios con programa asignado: 1 Firefox · 2 Alacritty · 3 IDEs (CLion, Android Studio, VS Code, Rider) · 4 Thunderbird · 5 Nautilus · 6 Discord/Zoom · 7 Minecraft · 9 Ferdium/Telegram · 10 Spotify.
 
@@ -201,9 +204,10 @@ Escritorios con programa asignado: 1 Firefox · 2 Alacritty · 3 IDEs (CLion, An
 - `battery_guard`, aviso de batería (`batterynotify` cada 5 min) y `photo_wallpaper.sh --daemon`.
 - `picom` (transparencias/animaciones, backend glx), `dunst` (notificaciones arriba a la derecha), `copyq`, `nm-applet`, `dex` (autostart XDG: Ferdium).
 - `xss-lock` → `lock_screen` al suspender o por inactividad.
+- `gammastep` (luz nocturna: pantalla cálida al anochecer en Cartago, `gammastep/config.ini`) y `udiskie` (monta USB solo y avisa).
 
 ## Barra (polybar)
-Escritorios a la izquierda; a la derecha RAM, CPU, volumen, Wi-Fi, distribución de teclado, batería (`Scripts/batterystatus`: ícono según nivel, tiempo restante, rojo ≤15%, 󰂄 cargando) y fecha/hora. Colores en `polybar/colors-dark.ini` / `colors-light.ini`; el color de acento lo pone `theme.sh` desde el fondo. `polybar/launch.sh` lanza la barra `main` en la laptop y `secondary` en monitores externos.
+Escritorios a la izquierda; al centro la canción que suena (`Scripts/now_playing.sh`: clic = play/pausa, rueda = siguiente/anterior); a la derecha RAM, CPU, volumen, Wi-Fi, distribución de teclado, batería (`Scripts/batterystatus`: ícono según nivel, tiempo restante, rojo ≤15%, 󰂄 cargando, 󰚥 enchufada pero detenida en el límite de 80%; clic = alternar límite/carga completa) y fecha/hora. Colores en `polybar/colors-dark.ini` / `colors-light.ini`; el color de acento lo pone `theme.sh` desde el fondo. `polybar/launch.sh` lanza la barra `main` en la laptop y `secondary` en monitores externos.
 
 ## Lanzador y Bluetooth (rofi)
 - `rofi/launchers/type-6/launcher.sh` (`Super+Space`): estilo según el tema (style-6 claro, style-7 oscuro con `rofi/images/telescope.png`, que no está en el repo por licencia).
@@ -220,10 +224,15 @@ Escritorios a la izquierda; a la derecha RAM, CPU, volumen, Wi-Fi, distribución
 ## Batería, suspensión e hibernación
 - `Scripts/battery_guard`: con ≤5% (o ≤6 min restantes) muestra una cuenta regresiva de 2 min; conectar el cargador la cancela; al llegar a 0 hiberna (o apaga si no se puede). `battery_guard --test` = prueba de 15 s.
 - `Scripts/setup_hibernate.sh` (con sudo, una vez): swapfile de 16G solo para hibernar (zram sigue siendo el swap normal), hook `resume`, `resume=`/`resume_offset=` en GRUB, tapa cerrada → suspender y luego hibernar si la batería se agota, UPower crítico → hibernar, huella en LightDM y fondo de bienvenida (`desktop_bgs/welcome.jpg`). Respaldos `*.bak-hibernate`.
+- `Scripts/setup_laptop.sh` (una vez, como tu usuario; pide sudo): **límite de carga** 40–80% en las dos baterías (alarga su vida; queda guardado en la batería, también aplica en Windows), **TLP** (ahorro de energía; excluye el Bluetooth y el lector de huella del autosuspend USB), **throttled** (arregla el bug de la T480 que frena la CPU), **fwupd** (lista actualizaciones de BIOS/Thunderbolt; instalarlas: `fwupdmgr update`, con cargador), temporizadores semanales `paccache` (guarda 2 versiones) y `reflector`, y los paquetes de playerctl, gammastep, udiskie, y rclone.
+- `Scripts/battery_charge.sh full|limit|toggle|status`: carga completa una vez (viajes) o volver al límite. Lo usa el clic en la batería; una regla de sudoers permite solo `tlp fullcharge` y `tlp setcharge` sin contraseña.
 - `Scripts/goodbye.sh poweroff|reboot|logout`: muestra `desktop_bgs/bye.jpg` 1.8 s antes de apagar/reiniciar/salir.
 
 ## Pantallas
 `Scripts/display.sh [auto|dock|hdmi|laptop]` (alias `screens`, `dock`, `hdmi`, `solo`): dock = laptop a la izquierda + DP-1-2 horizontal + DP-1-3-1 vertical; hdmi = HDMI-2 a la izquierda + laptop. `Scripts/wallpaper.sh` arma el fondo para todos los monitores (los verticales sin deformar).
+
+## Escritorio remoto a Windows
+`windows` (alias de `Scripts/rdp.sh`): abre el escritorio de la PC con Windows 10 Pro (`desktop-qpitifc`) por RDP sobre Tailscale. Funciona en casa (directo por la LAN), en el TEC o con datos móviles, sin abrir puertos. La ventana se adapta a su tamaño, con sonido, micrófono, portapapeles compartido y `~/Public` visible en Windows como unidad "Linux". La primera vez pide el usuario y la contraseña de Windows (con cuenta Microsoft: el correo y la contraseña de la cuenta, no el PIN); la contraseña queda cifrada en el llavero de GNOME (`gnome-keyring`, que instala `setup_laptop.sh` y que se abre solo al iniciar sesión con contraseña) y las siguientes veces conecta sin preguntar. Si Windows la rechaza, la olvida y la vuelve a pedir; tras cambiar la contraseña de Windows: `rdp.sh --forget`. **Cuentas Microsoft:** el usuario debe ir como `MicrosoftAccount\correo@dominio` (p. ej. `MicrosoftAccount\nombre@outlook.com`) y con Kerberos desactivado (`/auth-pkg-list:!kerberos`); si no, FreeRDP toma el correo como usuario de un dominio de empresa y Windows rechaza el inicio de sesión (`ERRCONNECT_LOGON_FAILURE`, "Cannot find KDC for realm"). `rdp.sh` lo hace solo: basta escribir el correo. En Remmina u otro cliente hay que poner el prefijo a mano. Además, Windows solo acepta la contraseña por RDP si alguna vez se entró a esa PC con la contraseña (no solo con PIN). El aviso "host key has changed" de la primera conexión es un fallo de FreeRDP 3 y se oculta. Alternativa gráfica: Remmina.
 
 ## Teclado
 - Distribución latam (`/etc/X11/xorg.conf.d/00-keyboard.conf`, respaldado en `system/etc/`). Cambiar de distribución siempre con `Scripts/keyboard.sh` / `toggle_layout.sh`: un `setxkbmap` a secas borra las flechas AltGr (`xkb/symbols/arrows`).
@@ -238,9 +247,15 @@ Escritorios a la izquierda; a la derecha RAM, CPU, volumen, Wi-Fi, distribución
 ## Scripts sin usar
 `Scripts/cava.py`, `Scripts/mic.sh` (módulo de micrófono para polybar) y `Scripts/weather.py` (clima de Cartago con OpenWeather; la API key va en `~/.config/openweather/api_key`, fuera del repo) no están conectados a nada ahora mismo.
 
+# Respaldo de secretos
+`Scripts/backup_secrets.sh` empaqueta lo que no puede ir en el repo (llaves SSH y GPG, llave de adb, API keys, redes Wi-Fi guardadas) cifrado con gpg AES-256 y una contraseña tuya (**guárdala fuera de la laptop**, en un gestor de contraseñas o en papel: sin ella el respaldo no sirve). Siempre deja copia en `~/Backups/secrets` (últimas 5) y la sube según `~/.config/backup_secrets.conf`:
+- `DEST=rclone:gdrive:Backups/secrets`: cualquier nube configurada con `rclone config` (Google Drive, Dropbox, OneDrive, MEGA…).
+
+Restaurar en un sistema nuevo: `backup_secrets.sh restore secrets-AAAAMMDD-HHMM.tar.gpg`. La pestaña HEALTH avisa si nunca se hizo o tiene más de 90 días.
+
 # Pasos manuales
-Lo que **no** está en el repo (es público) y hay que rehacer o restaurar desde un respaldo privado:
-- Llaves SSH (`~/.ssh`) y GPG (`~/.gnupg`), y volver a agregar la llave SSH a GitHub.
+Lo que **no** está en el repo (es público) y hay que rehacer o restaurar:
+- Llaves SSH/GPG, redes Wi-Fi y API keys: `backup_secrets.sh restore` (ver arriba; el archivo se baja de tu nube con `rclone` o del USB).
 - Redes Wi-Fi (`nmtui`; la de wTEC está arriba) — `/etc/NetworkManager/system-connections` tiene contraseñas.
 - Tailscale: `sudo tailscale up` y aprobar el equipo.
 - Huella: `fprintd-enroll` después de `setup_fingerprint.sh`.

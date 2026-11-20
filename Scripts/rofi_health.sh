@@ -110,6 +110,13 @@ collect() {
     (( pacnew > 0 )) && add 1 "󰈙" "$pacnew .pacnew files to review" pacnew \
                      || add 3 "󰈙" "No pending .pacnew config files"
 
+    # pacman 7 downloads into download-XXXXXX dirs (owned by alpm); an
+    # interrupted download leaves them behind and "paru -Sc" then prints an
+    # "Error reading fd 8" line for each one
+    local stale; stale=$(find /var/cache/pacman/pkg -maxdepth 1 -name 'download-*' -type d 2>/dev/null | grep -c .)
+    (( stale > 0 )) && ! pgrep -x 'pacman|paru' >/dev/null \
+        && add 1 "󰆴" "$stale leftover download folders in the cache" cache
+
     local cache_kb; cache_kb=$(du -sk /var/cache/pacman/pkg 2>/dev/null | cut -f1)
     if (( ${cache_kb:-0} > 5 * 1024 * 1024 )); then
         add 1 "󰃢" "Package cache: $(( cache_kb / 1024 / 1024 )) GB" cache
@@ -165,6 +172,18 @@ collect() {
     (( errs > 50 )) && sev=1 || sev=2
     add $sev "󰀪" "$errs errors in the log since boot" journal
 
+    # laptop care (Scripts/setup_laptop.sh)
+    local endt; endt=$(cat /sys/class/power_supply/BAT0/charge_control_end_threshold 2>/dev/null)
+    if [ -n "$endt" ] && (( endt < 100 )); then add 3 "󰂄" "Battery care limit: charges to $endt%"
+    elif systemctl is-active -q tlp 2>/dev/null; then add 2 "󰂄" "Full-charge mode (click the battery to limit)"
+    else add 1 "󰂄" "No battery care limit (run setup_laptop.sh)" laptop; fi
+    systemctl is-active -q tlp 2>/dev/null || add 1 "󰌪" "TLP power saving not running" laptop
+    systemctl is-active -q throttled 2>/dev/null || add 1 "󰓅" "T480 throttling fix not running" laptop
+    local last_sec; last_sec=$(cat "$HOME/Backups/secrets/.last_backup" 2>/dev/null)
+    if [ -z "$last_sec" ]; then add 1 "󰌆" "Secrets never backed up" secrets
+    elif (( (now - last_sec) / 86400 > 90 )); then add 1 "󰌆" "Secrets backup is $(( (now - last_sec) / 86400 )) days old" secrets
+    else add 3 "󰌆" "Secrets backed up $(ago $(( now - last_sec )))"; fi
+
     if busctl call org.freedesktop.login1 /org/freedesktop/login1 org.freedesktop.login1.Manager CanHibernate 2>/dev/null | grep -q '"yes"'; then
         add 3 "󰒲" "Hibernation ready"
     else
@@ -197,17 +216,19 @@ term() {  # run a command in a terminal that stays open
 do_action() {
     case "$1" in
         upgrade)  term 'echo "Pending repo updates:"; cat ~/.cache/health/updates.repo; echo; echo "Pending AUR updates:"; cat ~/.cache/health/updates.aur 2>/dev/null; echo; paru -Syu' ;;
-        mirrors)  term 'echo "Refresh the mirror list with reflector (fastest recent HTTPS mirrors):"; echo; echo "  sudo pacman -S --needed reflector"; echo "  sudo reflector --country US,MX --protocol https --latest 20 --sort rate --save /etc/pacman.d/mirrorlist"; echo; read -rp "Run it now? [y/N] " r; [[ $r == [yYsS]* ]] && sudo pacman -S --needed reflector && sudo reflector --country US,MX --protocol https --latest 20 --sort rate --save /etc/pacman.d/mirrorlist' ;;
+        mirrors)  term 'echo "Refresh the mirror list with reflector (fastest recent HTTPS mirrors):"; echo; echo "  sudo reflector --country US,MX --protocol https --latest 20 --sort rate --save /etc/pacman.d/mirrorlist"; echo; read -rp "Run it now? [y/N] " r; [[ $r == [yYsS]* ]] && { command -v reflector >/dev/null || sudo pacman -S --needed reflector; } && echo "(mirrors that time out are skipped; a WARNING about them is normal)" && sudo reflector --country US,MX --protocol https --latest 20 --sort rate --save /etc/pacman.d/mirrorlist' ;;
         lock)     term 'echo "No pacman is running, so the lock is left over from a crash."; echo "Remove it with:  sudo rm /var/lib/pacman/db.lck"; read -rp "Remove now? [y/N] " r; [[ $r == [yYsS]* ]] && sudo rm /var/lib/pacman/db.lck' ;;
         dbcheck)  term 'pacman -Dk' ;;
         orphans)  term 'pacman -Qdt; echo; read -rp "Remove them all (sudo pacman -Rns)? [y/N] " r; [[ $r == [yYsS]* ]] && sudo pacman -Rns $(pacman -Qdtq)' ;;
         pacnew)   term 'find /etc \( -name "*.pacnew" -o -name "*.pacsave" \) 2>/dev/null; echo; echo "Compare each with the original (e.g. diff /etc/x /etc/x.pacnew), merge what you want, then delete the .pacnew."' ;;
-        cache)    term 'du -sh /var/cache/pacman/pkg; echo; echo "Keeps only the installed version of each package and empties the AUR build cache:"; echo "  paru -Sc"; echo; read -rp "Run it now? [y/N] " r; [[ $r == [yYsS]* ]] && paru -Sc' ;;
+        cache)    term 'du -sh /var/cache/pacman/pkg; n=$(find /var/cache/pacman/pkg -maxdepth 1 -name "download-*" -type d | wc -l); echo; echo "Removes $n leftover download folders (interrupted downloads), then keeps only the installed version of each package and empties the AUR build cache (paru -Sc)."; echo; read -rp "Run it now? [y/N] " r; [[ $r == [yYsS]* ]] || exit 0; if pgrep -x "pacman|paru" >/dev/null; then echo "pacman is running; try again when it finishes"; else (( n > 0 )) && sudo find /var/cache/pacman/pkg -maxdepth 1 -name "download-*" -type d -exec rm -rf {} +; paru -Sc; du -sh /var/cache/pacman/pkg; fi' ;;
         reboot)   setsid -f ~/.config/rofi/powermenu/type-2/powermenu.sh >/dev/null 2>&1 ;;
         failed)   term 'systemctl --failed; systemctl --user --failed' ;;
         disk)     term 'df -h / /home; echo; echo "Biggest folders in your home:"; du -xh --max-depth=1 ~ 2>/dev/null | sort -h | tail -12' ;;
         ntp)      term 'timedatectl; echo; echo "Turn it on with: sudo timedatectl set-ntp true"' ;;
         journal)  term 'journalctl -p 3 -b --no-pager | tail -n 60' ;;
+        laptop)   term 'echo "Battery care limit, TLP power saving, T480 throttling fix, firmware updates, weekly cleanup:"; echo; read -rp "Run Scripts/setup_laptop.sh now? [y/N] " r; [[ $r == [yYsS]* ]] && ~/.config/Scripts/setup_laptop.sh' ;;
+        secrets)  term '~/.config/Scripts/backup_secrets.sh' ;;
         fprint)   term 'systemctl status python3-validity open-fprintd --no-pager; echo; echo "Restart with: sudo systemctl restart python3-validity open-fprintd"' ;;
     esac
 }

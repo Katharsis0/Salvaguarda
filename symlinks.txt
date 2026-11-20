@@ -14,6 +14,7 @@ ln -s ~/GitHub/dotfiles/copyq/ ~/.config/copyq
 ln -s ~/GitHub/dotfiles/flameshot/ ~/.config/flameshot
 ln -s ~/GitHub/dotfiles/Scripts/ ~/.config/Scripts
 ln -s ~/GitHub/dotfiles/xkb/ ~/.config/xkb
+ln -s ~/GitHub/dotfiles/gammastep/ ~/.config/gammastep
 ln -s ~/GitHub/dotfiles/.bashrc ~/.bashrc
 ln -s ~/GitHub/dotfiles/.bash_profile ~/.bash_profile
 ln -s ~/GitHub/dotfiles/Scripts/chargingnotify ~/.local/bin/

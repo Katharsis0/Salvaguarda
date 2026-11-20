@@ -1,6 +1,8 @@
 #!/bin/bash
 # Polybar battery module.
 #   plugged in : 󰂄 87%            (charging icon, no time estimate)
+#   plugged, held at the 80% care limit: 󰚥 80%   (plug icon: not charging on purpose)
+#   click: toggle the care limit / one full charge (Scripts/battery_charge.sh)
 #   on battery : 󰁿 54%  2h 13m    (level icon + time until empty; red when low)
 # Uses upower's combined DisplayDevice, so the T480's two batteries are
 # weighted by capacity instead of naively averaged.
@@ -22,13 +24,18 @@ done
 [ "$STATE" = discharging ] || AC=1   # charging / fully-charged / pending-charge
 
 if [ "$(cat "$HOME/.cache/theme_mode" 2>/dev/null)" = light ]; then
-    ALERT="#D20F39"; OK="#179299"
+    ALERT="#C0392B"; OK="#2B7A72"      # bone palette (polybar/colors-light.ini)
 else
     ALERT="#A54242"; OK="#8ABEB7"
 fi
 
 if [ "$AC" = 1 ]; then
-    echo "%{F$OK}󰂄%{F-} ${PCT}%"
+    END=$(cat /sys/class/power_supply/BAT0/charge_control_end_threshold 2>/dev/null || echo 100)
+    if [ "$STATE" != charging ] && (( END < 100 )); then
+        echo "%{F$OK}󰚥%{F-} ${PCT}%"          # plugged in, holding at the care limit
+    else
+        echo "%{F$OK}󰂄%{F-} ${PCT}%"
+    fi
     exit 0
 fi
 
