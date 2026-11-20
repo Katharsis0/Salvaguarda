@@ -23,7 +23,7 @@ shutdown='󰐥'
 reboot='󰜉'
 lock='󰌾'
 suspend='󰒲'
-logout='󰍃'
+wallpaper='󰸉'   # new random wallpaper for the current theme (logout lives on Super+Shift+E)
 yes='󰄬'
 no='󰅖'
 
@@ -55,7 +55,7 @@ confirm_exit() {
 
 # Pass variables to rofi dmenu
 run_rofi() {
-	echo -e "$lock\n$suspend\n$logout\n$reboot\n$shutdown" | rofi_cmd
+	echo -e "$lock\n$suspend\n$wallpaper\n$reboot\n$shutdown" | rofi_cmd
 }
 
 # Execute Command
@@ -101,7 +101,7 @@ case ${chosen} in
     $suspend)
 		run_cmd --suspend
         ;;
-    $logout)
-		run_cmd --logout
+    $wallpaper)
+		~/.config/Scripts/photo_wallpaper.sh --new &
         ;;
 esac

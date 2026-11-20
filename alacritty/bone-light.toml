@@ -1,0 +1,78 @@
+# Catppuccin Latte re-based on the "bone" background used by polybar light mode
+# (see Scripts/theme.sh). Cursor/selection colour is set to the wallpaper accent.
+
+[colors.primary]
+background = "#F2EEE6"
+foreground = "#3A352E"
+dim_foreground = "#8F887B"
+bright_foreground = "#3A352E"
+
+[colors.cursor]
+text = "#F2EEE6"
+cursor = "#dc8a78"
+
+[colors.vi_mode_cursor]
+text = "#F2EEE6"
+cursor = "#7287fd"
+
+[colors.search.matches]
+foreground = "#F2EEE6"
+background = "#6c6f85"
+
+[colors.search.focused_match]
+foreground = "#F2EEE6"
+background = "#40a02b"
+
+[colors.footer_bar]
+foreground = "#F2EEE6"
+background = "#6c6f85"
+
+[colors.hints.start]
+foreground = "#F2EEE6"
+background = "#df8e1d"
+
+[colors.hints.end]
+foreground = "#F2EEE6"
+background = "#6c6f85"
+
+[colors.selection]
+text = "#F2EEE6"
+background = "#dc8a78"
+
+[colors.normal]
+black = "#5c5f77"
+red = "#d20f39"
+green = "#40a02b"
+yellow = "#df8e1d"
+blue = "#1e66f5"
+magenta = "#ea76cb"
+cyan = "#179299"
+white = "#acb0be"
+
+[colors.bright]
+black = "#6c6f85"
+red = "#d20f39"
+green = "#40a02b"
+yellow = "#df8e1d"
+blue = "#1e66f5"
+magenta = "#ea76cb"
+cyan = "#179299"
+white = "#bcc0cc"
+
+[colors.dim]
+black = "#5c5f77"
+red = "#d20f39"
+green = "#40a02b"
+yellow = "#df8e1d"
+blue = "#1e66f5"
+magenta = "#ea76cb"
+cyan = "#179299"
+white = "#acb0be"
+
+[[colors.indexed_colors]]
+index = 16
+color = "#fe640b"
+
+[[colors.indexed_colors]]
+index = 17
+color = "#dc8a78"

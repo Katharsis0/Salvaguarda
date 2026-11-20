@@ -27,11 +27,21 @@ if [ "$MODE" = "dark" ]; then
     TRACK=FFFFFF22; SHADOW=55
 else
     WALL="$DOTFILES/desktop_bgs/light_bg.jpg"
-    TINT="#f4f5f9"; TINT_PCT=45
-    CARD="#ffffff";  CARD_A=0.55; EDGE="#000000"; EDGE_A=0.08
-    FG=2A2C3Bff; DIM=4C4F69aa; PRIMARY=8839EFff; SECONDARY=179299ff; ALERT=D20F39ff
+    TINT="#f2eee6"; TINT_PCT=45          # bone, like polybar light
+    CARD="#fbf8f2";  CARD_A=0.60; EDGE="#000000"; EDGE_A=0.08
+    FG=3A352Eff; DIM=5C554Baa; PRIMARY=8839EFff; SECONDARY=2B7A72ff; ALERT=C0392Bff
     TRACK=00000018; SHADOW=82
 fi
+
+# Follow this mode's rotating photo + its accent (Scripts/photo_wallpaper.sh)
+for s in current previous; do
+    if [ -s "$HOME/.cache/wallpapers/$MODE/$s.jpg" ]; then
+        WALL="$HOME/.cache/wallpapers/$MODE/$s.jpg"
+        A=$(cat "$HOME/.cache/wallpapers/$MODE/$s.accent" 2>/dev/null)
+        [[ "$A" =~ ^#[0-9A-Fa-f]{6}$ ]] && PRIMARY="${A#\#}ff"
+        break
+    fi
+done
 
 # Monitors as "W H X Y" (xrandr --listmonitors), primary first. Works for
 # one laptop panel, a dock, or any mix of resolutions/offsets.

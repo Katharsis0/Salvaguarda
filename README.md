@@ -123,3 +123,22 @@ Simlinkear `copyq/` (ver `symlinks.txt`) y correr una vez:
 
 
 
+
+# Tema claro/oscuro y fondos de pantalla
+Un solo interruptor (`Super+T`, o `Scripts/theme.sh dark|light|toggle`) cambia polybar, Alacritty, los bordes/barras de título de i3, el lock screen y el fondo. El modo actual se guarda en `~/.cache/theme_mode`.
+
+Dependencias: `imagemagick`, `jq`, `curl`, `feh`, `dunst` (`libnotify`), `i3lock-color`.
+
+**Fondos rotativos** (`Scripts/photo_wallpaper.sh`, arrancado por i3 con `--daemon`): cada modo tiene su propia foto y cambia cada 3 días.
+- Oscuro: bosques (Wikimedia Commons, *Quality images of forests*). Las fotos muy claras se saltan y las demás se oscurecen para que sirvan de noche.
+- Claro: animales (Wikimedia Commons, *Featured pictures of animals*), tal cual.
+- `Super+O` → botón 󰸉 = foto nueva ya (el logout quedó en `Super+Shift+E`).
+- `photo_wallpaper.sh --info` muestra autor y licencia (casi todas CC BY-SA: hay que dar crédito al autor), `--revert` vuelve a la foto anterior.
+- Sin API key (Unsplash no permite apps de fondos de pantalla en su API). Sin internet se queda la foto actual; si no hay ninguna se usan `desktop_bgs/death_bg.png` / `light_bg.jpg`.
+- Las fotos viven en `~/.cache/wallpapers/<modo>/`, nunca en el repo (es público).
+
+**Color de acento**: `Scripts/accent_color.sh` reduce la foto a 16 colores, descarta casi-negros, casi-blancos y grises, y elige el que más cubre (con un pequeño bonus a los más vivos). Se conserva el tono y se ajusta claridad/saturación para que se lea en la barra: más suave en oscuro, más profundo en claro. Ese acento va a polybar (`primary`), a las barras de título y bordes de i3, al cursor/selección de Alacritty y al lock screen.
+
+**Paleta clara "bone"** (`#F2EEE6`): blanco hueso en vez de blanco puro, menos agresivo pero con buen contraste para días soleados. Alacritty claro usa `alacritty/bone-light.toml` (Catppuccin Latte sobre fondo hueso).
+
+Archivos generados por `theme.sh` (no se versionan): `polybar/colors-current.ini`, `alacritty/theme-current.toml`, `i3/theme-current.conf` (incluido desde `i3/config`).
