@@ -43,5 +43,11 @@ fprintd-verify "$USER"
 echo "==> Adding fingerprint to sudo and the lock screen"
 add_fprint /etc/pam.d/sudo
 add_fprint /etc/pam.d/i3lock
+# i3lock collects the password before calling PAM, so check it first: a typed
+# password unlocks at once, an empty Enter falls through to the fingerprint.
+if ! sudo grep -q 'pam_unix.so nodelay' /etc/pam.d/i3lock; then
+    sudo sed -i 's/^auth\t\tsufficient\tpam_fprintd.so$/auth\t\tsufficient\tpam_unix.so nodelay\n&/' /etc/pam.d/i3lock
+    echo "    i3lock: password first, empty Enter -> fingerprint"
+fi
 
 echo "Done. Test with:  sudo -k && sudo true"

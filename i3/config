@@ -20,6 +20,7 @@ exec_always --no-startup-id ~/.config/Scripts/keyboard.sh
 exec --no-startup-id ~/.config/Scripts/display.sh auto
 #Battery notification
 exec --no-startup-id while true; do /home/katharsis/.local/bin/batterynotify; sleep 300; done
+exec --no-startup-id ~/.config/Scripts/battery_guard
 
 
 #exec --no-startup-id i3-msg 'workspace 1:Web; exec /usr/bin/firefox'

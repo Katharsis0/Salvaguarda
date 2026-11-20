@@ -1,19 +1,47 @@
-
 #!/bin/bash
+# Polybar battery module.
+#   plugged in : 󰂄 87%            (charging icon, no time estimate)
+#   on battery : 󰁿 54%  2:13      (level icon + time until empty; red when low)
+# Uses upower's combined DisplayDevice, so the T480's two batteries are
+# weighted by capacity instead of naively averaged.
 
-# Icons
-ICON_CHARGING="⚡"
-ICON_BATTERY=""
+DEV=$(upower -e | grep -m1 DisplayDevice)
+read -r STATE PCT HOURS < <(upower -i "$DEV" | awk '
+    /^ *state:/      { st=$2 }
+    /^ *percentage:/ { gsub(/%/,"",$2); pct=int($2+0.5) }
+    /^ *time to empty:/ {
+        v=$4; u=$5; gsub(",",".",v)
+        if (u ~ /hour/) h=v; else if (u ~ /minute/) h=v/60; else if (u ~ /second/) h=v/3600
+    }
+    END { if (h=="") h=-1; print st, pct, h }')
 
-# Get average battery percentage
-PERCENT=$(acpi -b | grep -o '[0-9]\+%' | sed 's/%//' | awk '{sum+=$1} END {if (NR > 0) print int(sum/NR); else print "0"}')
+AC=0
+for s in /sys/class/power_supply/A{C,DP}*/online; do
+    [ -r "$s" ] && [ "$(cat "$s")" = 1 ] && AC=1
+done
+[ "$STATE" = discharging ] || AC=1   # charging / fully-charged / pending-charge
 
-# Determine if charging
-if acpi -b | grep -q "Discharging"; then
-    ICON=$ICON_BATTERY
+if [ "$(cat "$HOME/.cache/theme_mode" 2>/dev/null)" = light ]; then
+    ALERT="#D20F39"; OK="#179299"
 else
-    ICON=$ICON_CHARGING
+    ALERT="#A54242"; OK="#8ABEB7"
 fi
 
-# Output for Polybar
-echo "${PERCENT}%"
+if [ "$AC" = 1 ]; then
+    echo "%{F$OK}󰂄%{F-} ${PCT}%"
+    exit 0
+fi
+
+ICONS=(󰂎 󰁺 󰁻 󰁼 󰁽 󰁾 󰁿 󰂀 󰂁 󰂂 󰁹)
+ICON=${ICONS[$(( PCT / 10 ))]}
+
+TIME=""
+if awk -v h="$HOURS" 'BEGIN{exit !(h > 0)}'; then
+    TIME=$(awk -v h="$HOURS" 'BEGIN{m=int(h*60+0.5); printf "  %d:%02d", m/60, m%60}')
+fi
+
+if (( PCT <= 15 )); then
+    echo "%{F$ALERT}$ICON ${PCT}%$TIME%{F-}"
+else
+    echo "$ICON ${PCT}%$TIME"
+fi

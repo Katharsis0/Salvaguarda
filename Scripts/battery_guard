@@ -1,0 +1,90 @@
+#!/bin/bash
+# battery_guard — never let the laptop die suddenly.
+#
+# When on battery and the charge drops to TRIGGER_PCT (or upower estimates
+# less than TRIGGER_MIN minutes left), a critical notification counts down
+# COUNTDOWN seconds. Plugging in the charger cancels it. At zero the machine
+# hibernates (the whole session is written to disk and restored on next boot);
+# if hibernation isn't available it does a clean poweroff instead.
+#
+# Started from i3/config. Single instance (flock).
+#   battery_guard --test   run a 15 s countdown without doing anything
+
+TRIGGER_PCT=5
+TRIGGER_MIN=6
+COUNTDOWN=120
+POLL=15
+NID=91919          # notification id, so updates replace each other
+
+TEST=0
+[ "${1:-}" = "--test" ] && { TEST=1; COUNTDOWN=15; }
+
+if [ $TEST = 0 ]; then
+    exec 9>"${XDG_RUNTIME_DIR:-/tmp}/battery_guard.lock"
+    flock -n 9 || exit 0
+fi
+
+DEV=$(upower -e | grep -m1 DisplayDevice)
+
+# prints: <state> <percentage-int> <minutes-to-empty or -1>
+read_battery() {
+    upower -i "$DEV" | awk '
+        /^ *state:/      { st=$2 }
+        /^ *percentage:/ { gsub(/%/,"",$2); pct=int($2) }
+        /^ *time to empty:/ {
+            v=$4; u=$5
+            if (u ~ /hour/) m=v*60; else if (u ~ /minute/) m=v; else if (u ~ /second/) m=v/60
+        }
+        END { if (m=="") m=-1; printf "%s %d %d\n", st, pct, m }'
+}
+
+on_battery() { [ "$(read_battery | cut -d" " -f1)" = "discharging" ]; }
+
+can_hibernate() {
+    [ "$(busctl call org.freedesktop.login1 /org/freedesktop/login1 \
+        org.freedesktop.login1.Manager CanHibernate 2>/dev/null)" = 's "yes"' ]
+}
+
+notify() { dunstify -r $NID "$@"; }
+
+countdown() {
+    local action="hibernating" end now left mm ss
+    can_hibernate || action="shutting down"
+    end=$(( $(date +%s) + COUNTDOWN ))
+    while :; do
+        now=$(date +%s); left=$(( end - now ))
+        (( left <= 0 )) && break
+        if [ $TEST = 0 ] && ! on_battery; then
+            notify -u normal -t 4000 -i battery-good-charging \
+                "Charger connected" "Cancelled — not $action."
+            return 1
+        fi
+        printf -v mm '%d' $(( left / 60 )); printf -v ss '%02d' $(( left % 60 ))
+        notify -u critical -i battery-empty \
+            -h int:value:$(( left * 100 / COUNTDOWN )) \
+            "Battery critical — $action in $mm:$ss" \
+            "Plug in the charger to cancel.$([ "$action" = hibernating ] && echo "
+Your session will be saved and restored when you turn the laptop back on.")"
+        sleep 1
+    done
+    notify -u critical -t 5000 -i battery-empty "Battery critical" "${action^}…"
+    sleep 1
+    [ $TEST = 1 ] && { notify -t 3000 "battery_guard test" "Done (no action taken)."; return 0; }
+    if [ "$action" = hibernating ]; then
+        systemctl hibernate || systemctl poweroff
+    else
+        systemctl poweroff
+    fi
+    sleep 60   # let resume settle before re-checking
+}
+
+if [ $TEST = 1 ]; then countdown; exit 0; fi
+
+while :; do
+    read -r ST PCT MIN < <(read_battery)
+    if [ "$ST" = discharging ] && \
+       { (( PCT <= TRIGGER_PCT )) || (( PCT <= 15 && MIN >= 0 && MIN <= TRIGGER_MIN )); }; then
+        countdown
+    fi
+    sleep $POLL
+done

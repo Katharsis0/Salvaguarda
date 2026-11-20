@@ -1,11 +1,19 @@
 #!/bin/bash
 # Theme-aware lock screen (i3lock-color).
-# Follows ~/.cache/theme_mode (set by theme.sh) and reuses the polybar palette
-# + the current wallpaper, blurred. The blurred image is cached per mode and
-# only regenerated when the wallpaper or resolution changes.
+# Follows ~/.cache/theme_mode (set by theme.sh) and reuses the polybar palette.
 #
-# Fingerprint: with pam_fprintd in /etc/pam.d/i3lock, press Enter on the empty
-# field, then touch the sensor. Typing your password still works.
+# Look: blurred + dimmed wallpaper with a frosted "glass" card in the middle
+# (baked into the background image), a big thin clock, the date, and a hairline
+# bar under it that lights up as you type (no ring). The card image is cached
+# per mode/resolution and only regenerated when the wallpaper or this script
+# changes.
+#
+# Fingerprint: the sensor listens the whole time the screen is locked (a
+# background fprintd-verify loop that ends i3lock on a match), so you can
+# either type your password or just touch the sensor.
+#
+# LOCK_PREVIEW=1 lock_screen  -> just (re)build the background image and print
+# its path (used to preview the design without locking).
 
 DOTFILES="$HOME/GitHub/dotfiles"
 MODE=$(cat "$HOME/.cache/theme_mode" 2>/dev/null)
@@ -13,58 +21,129 @@ MODE=$(cat "$HOME/.cache/theme_mode" 2>/dev/null)
 
 if [ "$MODE" = "dark" ]; then
     WALL="$DOTFILES/desktop_bgs/death_bg.png"
-    TINT="black";  TINT_PCT=40
-    BG=282A2Eee; FG=C5C8C6ff; PRIMARY=B57EDCff; SECONDARY=8ABEB7ff; ALERT=A54242ff
+    TINT="#0b0c10"; TINT_PCT=55
+    CARD="#1d1f24";  CARD_A=0.55; EDGE="#ffffff"; EDGE_A=0.10
+    FG=E6E8E6ff; DIM=C5C8C6aa; PRIMARY=B57EDCff; SECONDARY=8ABEB7ff; ALERT=E06C75ff
+    TRACK=FFFFFF22; SHADOW=55
 else
     WALL="$DOTFILES/desktop_bgs/light_bg.jpg"
-    TINT="white";  TINT_PCT=35
-    BG=EFF1F5ee; FG=4C4F69ff; PRIMARY=8839EFff; SECONDARY=179299ff; ALERT=D20F39ff
+    TINT="#f4f5f9"; TINT_PCT=45
+    CARD="#ffffff";  CARD_A=0.55; EDGE="#000000"; EDGE_A=0.08
+    FG=2A2C3Bff; DIM=4C4F69aa; PRIMARY=8839EFff; SECONDARY=179299ff; ALERT=D20F39ff
+    TRACK=00000018; SHADOW=82
 fi
 
 # Resolution of the primary (or first connected) output
 RES=$(xrandr | awk '/ primary /{for(i=1;i<=NF;i++) if($i ~ /^[0-9]+x[0-9]+\+/){sub(/\+.*/,"",$i); print $i; exit}}')
 [ -z "$RES" ] && RES=$(xrandr | awk '/ connected/{for(i=1;i<=NF;i++) if($i ~ /^[0-9]+x[0-9]+\+/){sub(/\+.*/,"",$i); print $i; exit}}')
 [ -z "$RES" ] && RES=1920x1080
+W=${RES%x*}; H=${RES#*x}
+
+# Everything scales with the screen height (designed at 1080p)
+S=$(awk -v h="$H" 'BEGIN{printf "%.3f", h/1080}')
+px() { awk -v s="$S" -v v="$1" 'BEGIN{printf "%d", v*s+0.5}'; }
+CW=$(px 560); CH=$(px 330); CR=$(px 28)          # card size / corner radius
+BAR_W=$(px 300)
 
 CACHE_DIR="$HOME/.cache/i3lock"
-IMG="$CACHE_DIR/lock-$MODE-$RES.png"
+IMG="$CACHE_DIR/card-$MODE-$RES.png"
 mkdir -p "$CACHE_DIR"
 
-if [ ! -f "$IMG" ] || [ "$WALL" -nt "$IMG" ]; then
+if [ ! -f "$IMG" ] || [ "$WALL" -nt "$IMG" ] || [ "$0" -nt "$IMG" ]; then
+    X0=$(( (W - CW) / 2 )); Y0=$(( (H - CH) / 2 ))
+    X1=$(( X0 + CW ));      Y1=$(( Y0 + CH ))
     magick "$WALL" -resize "${RES}^" -gravity center -extent "$RES" \
-        -blur 0x10 -fill "$TINT" -colorize "$TINT_PCT%" "$IMG" 2>/dev/null
+        -scale 25% -blur 0x6 -resize "$RES!" \
+        -fill "$TINT" -colorize "$TINT_PCT%" \
+        \( +clone -fill white -colorize 100 \
+           -fill black -draw "roundrectangle $X0,$((Y0+$(px 14))) $X1,$((Y1+$(px 14))) $CR,$CR" \
+           -blur 0x$(px 26) +level ${SHADOW}%,100% \) \
+        -compose multiply -composite \
+        -fill "rgba($(magick xc:"$CARD" -format '%[fx:int(255*r)],%[fx:int(255*g)],%[fx:int(255*b)]' info:),$CARD_A)" \
+        -stroke "rgba($(magick xc:"$EDGE" -format '%[fx:int(255*r)],%[fx:int(255*g)],%[fx:int(255*b)]' info:),$EDGE_A)" \
+        -strokewidth 1 \
+        -draw "roundrectangle $X0,$Y0 $X1,$Y1 $CR,$CR" \
+        "$IMG" 2>/dev/null
 fi
 
-IMG_ARGS=(--color="${BG:0:6}")
+if [ -n "${LOCK_PREVIEW:-}" ]; then echo "$IMG"; exit 0; fi
+
+IMG_ARGS=(--color=000000)
 [ -f "$IMG" ] && IMG_ARGS=(-i "$IMG")
 
 FONT="JetBrainsMono Nerd Font"
+FONT_THIN="JetBrainsMono NF ExtraLight"
 
+ARGS=("${IMG_ARGS[@]}")
 # Plain i3lock (not yet replaced by i3lock-color) doesn't know the styling flags
-if ! i3lock --version 2>&1 | grep -qi color; then
-    exec i3lock -n "${IMG_ARGS[@]}"
+if i3lock --version 2>&1 | grep -qE "version [0-9.]+\.c\."; then   # i3lock-color is "2.13.c.N"
+    CY="h/2"   # card centre (positions are relative to each screen)
+    ARGS+=(
+    --force-clock
+    --time-str="%H:%M"              --date-str="%A · %d %B"
+    --time-font="$FONT_THIN"        --date-font="$FONT"
+    --time-size=$(px 112)           --date-size=$(px 17)
+    --time-color=$FG                --date-color=$PRIMARY
+    --time-pos="w/2:$CY-$(px 18)"   --date-pos="w/2:$CY+$(px 26)"
+
+    # hairline "input" bar under the date; segments flash as you type
+    --bar-indicator --indicator
+    --bar-orientation=horizontal --bar-direction=2
+    --bar-total-width=$BAR_W --bar-max-height=$(px 4) --bar-base-width=$(px 2)
+    --bar-pos="w/2-$((BAR_W/2)):$CY+$(px 62)"
+    --bar-count=24 --bar-step=$(px 3) --bar-periodic-step=0
+    --bar-color=$TRACK
+    --keyhl-color=$PRIMARY       --bshl-color=$ALERT
+    --ringver-color=$SECONDARY   --ringwrong-color=$ALERT
+    --separator-color=00000000
+
+    --greeter-text="󰈷   touch the sensor  ·  or type your password"
+    --greeter-font="$FONT" --greeter-size=$(px 13) --greeter-color=$DIM
+    --greeter-pos="w/2:$CY+$(px 115)"
+
+    --verif-text="unlocking…"  --wrong-text="try again"
+    --noinput-text="" --lock-text="" --lockfailed-text="lock failed"
+    --verif-font="$FONT" --wrong-font="$FONT"
+    --verif-size=$(px 13) --wrong-size=$(px 13)
+    --verif-color=$SECONDARY --wrong-color=$ALERT
+    --verif-pos="w/2:$CY+$(px 92)" --wrong-pos="w/2:$CY+$(px 92)"
+
+    # layout indicator only appears when it matters (e.g. caps lock)
+    --modif-color=$ALERT --modif-size=$(px 12) --modif-pos="w/2:$CY+$(px 140)"
+
+    --pass-media-keys --pass-screen-keys --pass-volume-keys
+    )
 fi
 
-# exec so xss-lock's --transfer-sleep-lock fd goes straight to i3lock
-exec i3lock -n "${IMG_ARGS[@]}" \
-    --indicator --radius=110 --ring-width=8 \
-    --inside-color=$BG       --ring-color=${PRIMARY:0:6}88 \
-    --insidever-color=$BG    --ringver-color=$SECONDARY \
-    --insidewrong-color=$BG  --ringwrong-color=$ALERT \
-    --line-uses-inside \
-    --keyhl-color=$PRIMARY   --bshl-color=$ALERT \
-    --separator-color=00000000 \
-    --clock --time-str="%H:%M" --date-str="%A, %d %B" \
-    --time-color=$FG --date-color=${FG:0:6}bb \
-    --time-font="$FONT" --date-font="$FONT" \
-    --time-size=48 --date-size=14 \
-    --time-pos="ix:iy-8" --date-pos="tx:ty+28" \
-    --verif-text="Verifying…" --wrong-text="Nope" --noinput-text="" \
-    --lock-text="" --lockfailed-text="Lock failed" \
-    --verif-color=$SECONDARY --wrong-color=$ALERT \
-    --verif-font="$FONT" --wrong-font="$FONT" \
-    --verif-size=18 --wrong-size=18 \
-    --greeter-text="Enter password · or press Enter + touch fingerprint" \
-    --greeter-color=${FG:0:6}cc --greeter-font="$FONT" --greeter-size=13 \
-    --greeter-pos="ix:iy+160" \
-    --pass-media-keys --pass-screen-keys --pass-volume-keys
+U=$(id -u)
+pgrep -xu "$U" i3lock >/dev/null && exit 0   # already locked
+
+# Without -n, i3lock forks once the screen is locked. It must not inherit
+# xss-lock's sleep-delay fd; closing ours afterwards lets suspend proceed.
+if [[ -n ${XSS_SLEEP_LOCK_FD:-} && -e /dev/fd/$XSS_SLEEP_LOCK_FD ]]; then
+    i3lock "${ARGS[@]}" {XSS_SLEEP_LOCK_FD}<&-
+    exec {XSS_SLEEP_LOCK_FD}<&-
+else
+    i3lock "${ARGS[@]}"
+fi
+
+locked() { pgrep -xu "$U" i3lock >/dev/null; }
+
+# Keep the sensor listening while locked; a match ends i3lock.
+command -v fprintd-verify >/dev/null || exit 0
+OUT=$(mktemp); trap 'rm -f "$OUT"' EXIT
+while locked; do
+    fprintd-verify "$USER" >"$OUT" 2>&1 &
+    VPID=$!
+    while kill -0 "$VPID" 2>/dev/null; do
+        # unlocked with the password: stop listening (open-fprintd releases
+        # the sensor when the client goes away)
+        locked || { kill "$VPID"; exit 0; }
+        sleep 0.3
+    done
+    if grep -q 'result: verify-match' "$OUT"; then
+        pkill -xu "$U" i3lock
+        exit 0
+    fi
+    sleep 1   # no match / sensor not ready (e.g. right after resume): retry
+done
