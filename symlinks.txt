@@ -21,6 +21,7 @@ ln -s ~/GitHub/dotfiles/Scripts/chargingnotify ~/.local/bin/
 ln -s ~/GitHub/dotfiles/Scripts/batterynotify ~/.local/bin/
 ln -s ~/GitHub/dotfiles/Scripts/.git-prompt-zkwinkle ~/.local/bin/
 ln -s ~/GitHub/dotfiles/Scripts/batterystatus ~/.local/bin/
+ln -s ~/GitHub/dotfiles/Scripts/_paru_fzf_preview.sh ~/.local/bin/
 ln -s ~/GitHub/dotfiles/git/.gitconfig ~/
 ```
 

@@ -79,3 +79,13 @@ export PATH=$PATH:/home/katharsis/.spicetify
 
 # Rename this terminal's window/tab:  title my-name   (no args -> "Terminal")
 title() { printf '\033]0;%s\007' "${*:-Terminal}"; }
+
+# Install / remove packages with paru + fzf fuzzy search (Tab = multi-select,
+# preview = Scripts/_paru_fzf_preview.sh).  pain [query]   pare [query]
+# Extracted from zkwinkle (https://github.com/zkwinkle/.config, zsh/.zshrc).
+pain() {
+    paru -Slq | fzf -q "$1" -m --preview "_paru_fzf_preview.sh S {}" --preview-window=wrap | xargs -ro paru -S
+}
+pare() {
+    paru -Qq | fzf -q "$1" -m --preview "_paru_fzf_preview.sh Q {}" --preview-window=wrap | xargs -ro paru -Rns
+}

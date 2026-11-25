@@ -241,6 +241,7 @@ Escritorios a la izquierda; al centro la canción que suena (`Scripts/now_playin
 ## Terminal y shell
 - Alacritty: JetBrainsMono Nerd Font 12, tema Catppuccin Mocha (oscuro) / `bone-light.toml` (claro), cambia en vivo con el tema.
 - `.bashrc`: prompt `(✿◠‿◠)` con rama de git (`Scripts/.git-prompt-zkwinkle`), `ls` con `eza`, alias de git (`gc`, `gco`, `gbr`, `gsts`, `glog`), `config` (ir al repo), `vim`→`nvim`, `mimir` (bloquear), `off`, `pdf archivo` (abre en Okular), `title "texto"` (título de la ventana).
+- `pain [búsqueda]` / `pare [búsqueda]` (en `.bashrc`, extraídos de [zkwinkle](https://github.com/zkwinkle/.config)): instalar / desinstalar paquetes (repos + AUR) con `paru` y búsqueda difusa en `fzf`; `Tab` marca varios, `Enter` confirma. La vista previa muestra la descripción y la info del paquete (`Scripts/_paru_fzf_preview.sh`, enlazado a `~/.local/bin`).
 - Neovim: LazyVim (`nvim/`, versiones fijadas en `lazy-lock.json`).
 - `.gitconfig`: usuario, `bat` como pager, git-lfs.
 
