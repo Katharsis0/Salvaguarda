@@ -1,0 +1,7 @@
+# User PulseAudio config: system defaults plus switching audio to a device
+# (e.g. Bluetooth headphones) as soon as it connects.
+.include /etc/pulse/default.pa
+
+.ifexists module-switch-on-connect.so
+load-module module-switch-on-connect
+.endif

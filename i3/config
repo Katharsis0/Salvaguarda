@@ -26,6 +26,8 @@ exec --no-startup-id ~/.config/Scripts/display.sh auto
 exec --no-startup-id while true; do /home/katharsis/.local/bin/batterynotify; sleep 300; done
 exec --no-startup-id ~/.config/Scripts/battery_guard
 exec --no-startup-id ~/.config/Scripts/photo_wallpaper.sh --daemon
+#Bluetooth pairing agent (needed for headphones to pair, stay bonded and auto-connect)
+exec --no-startup-id ~/.config/Scripts/bt_agent.py
 
 
 #exec --no-startup-id i3-msg 'workspace 1:Web; exec /usr/bin/firefox'

@@ -133,14 +133,22 @@ bg_job() {  # bg_job verb MAC
         verb=$1 mac=$2 name=$3 STATUS=$4
         status() { printf "%s|%s" "$1" "$2" > "$STATUS"; }   # shown in the menu
 
-        connect() { bluetoothctl --timeout 15 connect "$mac" 2>&1 | grep -q "Connection successful"; }
-        pair() {  # fresh pairing; NoInputNoOutput = no PIN/passkey prompts
-            bluetoothctl --agent NoInputNoOutput --timeout 25 pair "$mac" 2>&1 \
-                | grep -qE "Pairing successful|AlreadyExists" || return 1
-            bluetoothctl trust "$mac" >/dev/null 2>&1
-            connect
+        # Capture output first: `| grep -q` exits on the first match and the
+        # SIGPIPE kills bluetoothctl mid-pairing. Pairing prompts are answered
+        # by the always-on agent (Scripts/bt_agent.py, started by i3), which
+        # also has to be there afterwards when headsets open A2DP/HFP.
+        paired()    { bluetoothctl info "$mac" | grep -q "^\s*Paired: yes"; }
+        connected() { bluetoothctl info "$mac" | grep -q "^\s*Connected: yes"; }
+        connect() {
+            local out; out=$(bluetoothctl --timeout 15 connect "$mac" 2>&1)
+            grep -q "Connection successful" <<<"$out" || connected
         }
-        paired() { bluetoothctl info "$mac" | grep -q "^\s*Paired: yes"; }
+        pair() {
+            bluetoothctl trust "$mac" >/dev/null 2>&1
+            bluetoothctl --timeout 25 pair "$mac" >/dev/null 2>&1
+            paired || return 1
+            connected || connect
+        }
 
         case $verb in
           connect)
