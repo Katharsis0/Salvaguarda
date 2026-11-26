@@ -11,7 +11,7 @@ github-desktop-bin
 google-chrome
 i3lock-color
 minecraft-launcher
-paru
+paru-git
 proton-ge-custom-bin
 python-validity
 spotify

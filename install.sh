@@ -45,8 +45,8 @@ step_packages() {
         echo "   bootstrapping paru (AUR helper)"
         run sudo pacman -S --needed --noconfirm base-devel git
         local d; d=$(mktemp -d)
-        run git clone https://aur.archlinux.org/paru-bin.git "$d/paru-bin"
-        if [ $DRY = 0 ]; then (cd "$d/paru-bin" && makepkg -si --noconfirm); fi
+        run git clone https://aur.archlinux.org/paru-git.git "$d/paru-git"
+        if [ $DRY = 0 ]; then (cd "$d/paru-git" && makepkg -si --noconfirm); fi
     fi
     run paru -S --needed --noconfirm $(grep -v '^paru' "$SYS/packages/aur.txt")
 

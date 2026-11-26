@@ -83,8 +83,22 @@ title() { printf '\033]0;%s\007' "${*:-Terminal}"; }
 # Install / remove packages with paru + fzf fuzzy search (Tab = multi-select,
 # preview = Scripts/_paru_fzf_preview.sh).  pain [query]   pare [query]
 # Extracted from zkwinkle (https://github.com/zkwinkle/.config, zsh/.zshrc).
+# Change: the AUR names come straight from aur.archlinux.org (cached a day),
+# not `paru -Slq`: paru 2.1.0 prints the AUR list still gzipped (and once
+# cached an anti-bot HTML page), which showed up as garbage in fzf.
+_aur_names() {
+    local f=~/.cache/aur-names
+    if [ -z "$(find "$f" -mmin -1440 2>/dev/null)" ]; then
+        curl -fsSL https://aur.archlinux.org/packages.gz 2>/dev/null | gunzip 2>/dev/null \
+            | LC_ALL=C grep -E '^[a-zA-Z0-9@._+-]+$' > "$f.tmp"
+        # keep the old list if the download failed or wasn't a package list
+        if [ "$(wc -l < "$f.tmp")" -gt 10000 ]; then mv "$f.tmp" "$f"; else rm -f "$f.tmp"; fi
+    fi
+    cat "$f" 2>/dev/null
+}
 pain() {
-    paru -Slq | fzf -q "$1" -m --preview "_paru_fzf_preview.sh S {}" --preview-window=wrap | xargs -ro paru -S
+    { pacman -Slq; _aur_names; } | awk '!seen[$0]++' \
+        | fzf -q "$1" -m --preview "_paru_fzf_preview.sh S {}" --preview-window=wrap | xargs -ro paru -S
 }
 pare() {
     paru -Qq | fzf -q "$1" -m --preview "_paru_fzf_preview.sh Q {}" --preview-window=wrap | xargs -ro paru -Rns
