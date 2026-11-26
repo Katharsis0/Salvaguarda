@@ -9,11 +9,11 @@
 
 /*****----- Configuration -----*****/
 configuration {
-	modi:                       "drun,bt:~/.config/Scripts/rofi_bt_battery.sh,filebrowser,health:~/.config/Scripts/rofi_health.sh";
+	modi:                       "drun,bt:~/.config/Scripts/rofi_bt_battery.sh,displays:~/.config/Scripts/rofi_displays.sh,health:~/.config/Scripts/rofi_health.sh";
     show-icons:                 true;
     display-drun:               "APPS";
     display-bt:                 "DEVICES";
-    display-filebrowser:        "FILES";
+    display-displays:           "DISPLAYS";
     display-health:             "HEALTH";
 	drun-display-format:        "{name}";
 	window-format:              "{w} · {c} · {t}";

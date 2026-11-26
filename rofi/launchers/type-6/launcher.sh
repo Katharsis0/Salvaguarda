@@ -30,11 +30,11 @@ if bluetoothctl show 2>/dev/null | grep -q 'Powered: yes'; then
     date +%s > "${XDG_RUNTIME_DIR:-/tmp}/bt_scan_started"
 fi
 
-## Run
-## ←/→ switch tabs (APPS / DEVICES / FILES / HEALTH) instead of moving the
+## Run   (launcher.sh [tab]: opens on that tab, e.g. `launcher.sh displays`)
+## ←/→ switch tabs (APPS / DEVICES / DISPLAYS / HEALTH) instead of moving the
 ## text cursor; Ctrl+B / Ctrl+F still move the cursor.
 rofi \
-    -show drun \
+    -show "${1:-drun}" \
     -theme ${dir}/${theme}.rasi \
     -kb-move-char-back "Control+b" \
     -kb-move-char-forward "Control+f" \

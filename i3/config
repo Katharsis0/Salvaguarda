@@ -22,6 +22,7 @@ exec_always --no-startup-id ~/.config/Scripts/keyboard.sh
 
 #Displays (auto-detect layout: dock / hdmi / laptop) — see Scripts/display.sh
 exec --no-startup-id ~/.config/Scripts/display.sh auto
+exec --no-startup-id ~/.config/Scripts/display_hotplug.sh
 #Battery notification
 exec --no-startup-id while true; do /home/katharsis/.local/bin/batterynotify; sleep 300; done
 exec --no-startup-id ~/.config/Scripts/battery_guard
@@ -37,6 +38,9 @@ exec --no-startup-id ~/.config/Scripts/bt_agent.py
 
 ## Menu de Aplicaciones
 bindsym $mod+space exec --no-startup-id ~/.config/rofi/launchers/type-6/launcher.sh
+# Displays / projector: layouts, mirror, resolution (DISPLAYS tab)
+bindsym $mod+Shift+p exec --no-startup-id ~/.config/rofi/launchers/type-6/launcher.sh displays
+bindsym XF86Display exec --no-startup-id ~/.config/rofi/launchers/type-6/launcher.sh displays
 # rename the focused window / Alacritty "tab" (empty = restore)
 bindsym $mod+n exec --no-startup-id ~/.config/Scripts/rename_window.sh
 ## Keybinding cheatsheet (searchable; Enter runs it)

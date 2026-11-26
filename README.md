@@ -166,7 +166,8 @@ Todo lo de abajo vive en este repo; `Super+F1` muestra la lista de atajos en viv
 ## Atajos de teclado (i3, `Super` = tecla Windows)
 | Atajo | Acción |
 |---|---|
-| `Super+Space` | Lanzador rofi con pestañas APPS / DEVICES / FILES / HEALTH (`←`/`→` cambian de pestaña) |
+| `Super+Space` | Lanzador rofi con pestañas APPS / DEVICES / DISPLAYS / HEALTH (`←`/`→` cambian de pestaña) |
+| `Super+Shift+P` o tecla de pantalla (`Fn+F7`) | Pestaña DISPLAYS: pantallas y proyectores (extender, duplicar, solo externa, resolución) |
 | `Super+Return` | Terminal (Alacritty) |
 | `Super+O` | Menú de energía: bloquear, suspender, **fondo nuevo**, reiniciar, apagar |
 | `Super+Shift+E` | Cerrar sesión (con confirmación) |
@@ -200,7 +201,7 @@ Escritorios con programa asignado: 1 Firefox · 2 Alacritty · 3 IDEs (CLion, An
 
 ## Qué arranca con i3
 - `theme.sh apply` (tema, fondo, colores), `keyboard.sh` (latam + flechas AltGr), `xset -b` (sin pitido).
-- `display.sh auto`: detecta dock / HDMI / solo laptop (ver abajo).
+- `display.sh auto`: detecta dock / pantalla externa / solo laptop (ver abajo), y `display_hotplug.sh`, que lo vuelve a correr al conectar o desconectar una pantalla.
 - `battery_guard`, aviso de batería (`batterynotify` cada 5 min) y `photo_wallpaper.sh --daemon`.
 - `picom` (transparencias/animaciones, backend glx), `dunst` (notificaciones arriba a la derecha), `copyq`, `nm-applet`, `dex` (autostart XDG: Ferdium).
 - `xss-lock` → `lock_screen` al suspender o por inactividad.
@@ -212,6 +213,7 @@ Escritorios a la izquierda; al centro la canción que suena (`Scripts/now_playin
 ## Lanzador y Bluetooth (rofi)
 - `rofi/launchers/type-6/launcher.sh` (`Super+Space`): estilo según el tema (style-6 claro, style-7 oscuro con `rofi/images/telescope.png`, que no está en el repo por licencia).
 - Pestaña **DEVICES** (`Scripts/rofi_bt_battery.sh`): estilo Apple. Muestra lo conectado (con batería; submenú desconectar/olvidar) y lo cercano ordenado por señal. Un clic conecta, empareja y confía en el dispositivo; si un dispositivo emparejado rechaza la conexión (llave vieja) lo vuelve a emparejar solo.
+- Pestaña **DISPLAYS** (`Scripts/rofi_displays.sh`, también `Super+Shift+P`): pantallas y proyectores. Ver **Pantallas**.
 - Pestaña **HEALTH** (`Scripts/rofi_health.sh`): chequeo del sistema, problemas primero (rojo = problema, ámbar = advertencia, gris = bien). Pacman: actualizaciones pendientes (repos + AUR), última actualización completa, última sincronización, antigüedad del mirrorlist, lock huérfano, consistencia de la base de datos (`pacman -Dk`), huérfanos, `.pacnew`, tamaño de la caché. Sistema: reinicio pendiente por kernel, servicios caídos, disco, memoria, desgaste de baterías, temperatura, hora sincronizada, errores del journal, hibernación y huella. Elegir una fila abre una terminal con el detalle o el arreglo (p. ej. actualizaciones → `paru -Syu`, caché → `paru -Sc`). Muestra el último reporte al instante y lo refresca en segundo plano; las actualizaciones se buscan como `checkupdates` (copia privada de las bases de datos, máximo una vez por hora). En terminal: `rofi_health.sh --print`.
 - `rofi/powermenu/type-2/powermenu.sh` (`Super+O`). Las demás carpetas de `rofi/` son la colección original de adi1090x (temas sin usar).
 
@@ -229,7 +231,11 @@ Escritorios a la izquierda; al centro la canción que suena (`Scripts/now_playin
 - `Scripts/goodbye.sh poweroff|reboot|logout`: muestra `desktop_bgs/bye.jpg` 1.8 s antes de apagar/reiniciar/salir.
 
 ## Pantallas
-`Scripts/display.sh [auto|dock|hdmi|laptop]` (alias `screens`, `dock`, `hdmi`, `solo`): dock = laptop a la izquierda + DP-1-2 horizontal + DP-1-3-1 vertical; hdmi = HDMI-2 a la izquierda + laptop. `Scripts/wallpaper.sh` arma el fondo para todos los monitores (los verticales sin deformar).
+Para cualquier pantalla externa (monitor, proyector, TV) en cualquier puerto, siempre en la resolución que la pantalla pide (p. ej. 1280x800 en proyectores).
+- **Al conectar** una pantalla, `Scripts/display_hotplug.sh` (arranca con i3) la enciende sola extendida a la izquierda y avisa; al desconectarla vuelve a solo laptop.
+- **Pestaña DISPLAYS** (`Super+Shift+P`, tecla de pantalla `Fn+F7`, o `Super+Space` → `→`): Solo laptop · Extender (izquierda / derecha / arriba) · Duplicar (misma imagen; si no comparten resolución, la externa se escala para llenar) · Solo externa (presentar, laptop apagada). Marca la opción activa. Cada pantalla externa abre un submenú con sus resoluciones (la recomendada marcada) y "apagar". **Advanced** abre `arandr` para arrastrar pantallas a mano.
+- Terminal: `Scripts/display.sh [auto|laptop|extend [SALIDA] [lado]|mirror|external|mode SALIDA WxH|off SALIDA|dock|list]` (alias `screens` = auto, `dock`, `hdmi` = extender, `solo` = laptop). dock = laptop a la izquierda + DP-1-2 horizontal + DP-1-3-1 vertical.
+- `Scripts/wallpaper.sh` arma el fondo para todos los monitores (los verticales sin deformar) y polybar se relanza en cada cambio.
 
 ## Escritorio remoto a Windows
 `windows` (alias de `Scripts/rdp.sh`): abre el escritorio de la PC con Windows 10 Pro (`desktop-qpitifc`) por RDP sobre Tailscale. Funciona en casa (directo por la LAN), en el TEC o con datos móviles, sin abrir puertos. La ventana se adapta a su tamaño, con sonido, micrófono, portapapeles compartido y `~/Public` visible en Windows como unidad "Linux". La primera vez pide el usuario y la contraseña de Windows (con cuenta Microsoft: el correo y la contraseña de la cuenta, no el PIN); la contraseña queda cifrada en el llavero de GNOME (`gnome-keyring`, que instala `setup_laptop.sh` y que se abre solo al iniciar sesión con contraseña) y las siguientes veces conecta sin preguntar. Si Windows la rechaza, la olvida y la vuelve a pedir; tras cambiar la contraseña de Windows: `rdp.sh --forget`. **Cuentas Microsoft:** el usuario debe ir como `MicrosoftAccount\correo@dominio` (p. ej. `MicrosoftAccount\nombre@outlook.com`) y con Kerberos desactivado (`/auth-pkg-list:!kerberos`); si no, FreeRDP toma el correo como usuario de un dominio de empresa y Windows rechaza el inicio de sesión (`ERRCONNECT_LOGON_FAILURE`, "Cannot find KDC for realm"). `rdp.sh` lo hace solo: basta escribir el correo. En Remmina u otro cliente hay que poner el prefijo a mano. Además, Windows solo acepta la contraseña por RDP si alguna vez se entró a esa PC con la contraseña (no solo con PIN). El aviso "host key has changed" de la primera conexión es un fallo de FreeRDP 3 y se oculta. Alternativa gráfica: Remmina.
