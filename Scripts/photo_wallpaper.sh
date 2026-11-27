@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Rotating photo wallpapers, one set per theme mode, new photo every 3 days,
+# Rotating photo wallpapers, one set per theme mode, new photo every day,
 # plus an accent colour (polybar, i3 title bars, Alacritty cursor, lock screen)
 # taken from each photo.
 #
@@ -9,7 +9,7 @@
 #            used as-is
 #
 # Usage:
-#   photo_wallpaper.sh            rotate any set whose photo is >= 3 days old
+#   photo_wallpaper.sh            rotate any set whose photo is >= 1 day old
 #   photo_wallpaper.sh --new      new photo for the active mode now, with
 #                                 on-screen progress (Super+O menu)
 #   photo_wallpaper.sh --force [dark|light]   new photo now, no notification
@@ -29,7 +29,7 @@
 
 DOTFILES="$HOME/GitHub/dotfiles"
 ROOT="$HOME/.cache/wallpapers"
-MAX_AGE=$((3 * 24 * 3600))
+MAX_AGE=$((24 * 3600))       # one new photo a day
 RETRY_AFTER=$((3 * 3600))         # offline? try again in 3 h, not every hour
 API="https://commons.wikimedia.org/w/api.php"
 UA="dotfiles-photo-wallpaper/1.0 (personal desktop wallpaper script; curl)"
