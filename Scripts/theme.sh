@@ -3,7 +3,7 @@
 # apply (default) re-applies whatever mode is currently saved, used at i3 startup.
 #
 # Each mode has a rotating photo wallpaper (Scripts/photo_wallpaper.sh: dark =
-# forests, light = animals) with an accent colour picked from the photo. The
+# astronomy, light = animals) with an accent colour picked from the photo. The
 # accent is applied to: polybar "primary", i3 window borders / title bars,
 # Alacritty cursor + selection, and the lock screen (which reads the cache itself).
 # Without a photo (first run, offline from the start) the bundled

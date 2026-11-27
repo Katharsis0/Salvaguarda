@@ -3,7 +3,7 @@
 # plus an accent colour (polybar, i3 title bars, Alacritty cursor, lock screen)
 # taken from each photo.
 #
-#   dark  -> forests   (Wikimedia Commons "Quality images of forests"),
+#   dark  -> astronomy (Wikimedia Commons "Featured pictures of astronomy"),
 #            bright photos skipped and the rest dimmed for night use
 #   light -> animals   (Wikimedia Commons "Featured pictures of animals"),
 #            used as-is
@@ -38,13 +38,15 @@ UA="dotfiles-photo-wallpaper/1.0 (personal desktop wallpaper script; curl)"
 set_mode() {
     MODE=$1; DIR="$ROOT/$MODE"; mkdir -p "$DIR"
     if [ "$MODE" = dark ]; then
-        CATEGORY="Quality images of forests"
+        # galaxies, nebulae, planets, comets, aurora, spacecraft; minus the
+        # poster subcategory and the sunsets/sunrises filed under the Sun
+        SEARCH='deepcat:"Featured pictures of astronomy" -deepcat:"Featured pictures of space posters" -intitle:sunset -intitle:sunrise -intitle:dusk -intitle:dawn'
         MAX_TRIES=5        # photos to download looking for a dark-enough one
         MAX_MEAN=0.45      # brighter than this (0 black .. 1 white): skip it
         TARGET_MEAN=0.30   # anything brighter is dimmed down to about this
-        LABEL="forest"
+        LABEL="astronomy"
     else
-        CATEGORY="Featured pictures of animals"
+        SEARCH='deepcat:"Featured pictures of animals"'
         MAX_TRIES=1; MAX_MEAN=1; TARGET_MEAN=1   # no brightness rules
         LABEL="animal"
     fi
@@ -84,7 +86,7 @@ fetch() {
     if ! curl -fsSG -m 25 -A "$UA" "$API" \
             --data-urlencode action=query --data-urlencode format=json \
             --data-urlencode generator=search --data-urlencode gsrnamespace=6 \
-            --data-urlencode "gsrsearch=deepcat:\"$CATEGORY\" filew:>1900 filetype:bitmap" \
+            --data-urlencode "gsrsearch=$SEARCH filew:>1900 filetype:bitmap" \
             --data-urlencode gsrsort=random --data-urlencode gsrlimit=30 \
             --data-urlencode prop=imageinfo --data-urlencode "iiprop=url|size|extmetadata" \
             --data-urlencode "iiextmetadatafilter=Artist|LicenseShortName|ObjectName" \
